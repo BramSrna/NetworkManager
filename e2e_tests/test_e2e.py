@@ -1,9 +1,9 @@
 import logging
 import unittest
 
-from src.control_centre import ControlCentre
-from src.swarm_bot import SwarmBot
-from src.http_mock import HttpMock
+from control_centre.src.control_centre import ControlCentre
+from swarm_bot.src.swarm_bot import SwarmBot
+from http_mock.src.http_mock import HttpMock
 
 class TestE2e(unittest.TestCase):
     def test_tasks_can_be_delegated_to_swarm_bots(self):

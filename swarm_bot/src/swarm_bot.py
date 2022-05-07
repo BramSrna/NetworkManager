@@ -1,5 +1,5 @@
-from src.message_types import MessageTypes
-from src.http_communicator import HttpCommunicator
+from common.src.message_types import MessageTypes
+from http_mock.src.http_communicator import HttpCommunicator
 
 
 class SwarmBot(HttpCommunicator):
