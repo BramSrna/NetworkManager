@@ -1,6 +1,6 @@
-from src.swarm_bot import SwarmBot
-from src.message_types import MessageTypes
-from src.http_communicator import HttpCommunicator
+from swarm_bot.src.swarm_bot import SwarmBot
+from common.src.message_types import MessageTypes
+from http_mock.src.http_communicator import HttpCommunicator
 
 class ControlCentre(HttpCommunicator):
     def __init__(self, http_mock):

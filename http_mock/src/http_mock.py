@@ -1,4 +1,4 @@
-from src.http_communicator import HttpCommunicator
+from http_mock.src.http_communicator import HttpCommunicator
 
 class HttpMock(object):
     def __init__(self):
