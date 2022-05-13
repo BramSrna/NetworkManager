@@ -1,6 +1,5 @@
 from enum import Enum
 
 class MessageTypes(Enum):
-    NEW_TASK = 1
-    LOG_REQUEST = 2
-    RUN_LOGS = 3
+    NEW_DATA_FLOW = 1
+    SENSOR_VAL = 2

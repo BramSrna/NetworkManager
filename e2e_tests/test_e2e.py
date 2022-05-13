@@ -6,7 +6,7 @@ from swarm_bot.src.swarm_bot import SwarmBot
 from http_mock.src.http_mock import HttpMock
 
 class TestE2e(unittest.TestCase):
-    def test_tasks_can_be_delegated_to_swarm_bots(self):
+    def test_data_flows_can_be_assigned_to_sensors(self):
         test_http_mock = HttpMock()
         test_control_centre = ControlCentre(test_http_mock)
 
@@ -15,17 +15,14 @@ class TestE2e(unittest.TestCase):
 
         test_control_centre.add_swarm_bot(test_swarm_bot)
 
-        def inner_test_task():
-            import random
-            num_1 = random.randint(1, 10)
-            num_2 = random.randint(1, 10)
-            return [num_1, num_2, num_1 + num_2]
+        test_sensor_id = "SENSOR_NAME"
+        test_swarm_bot.add_sensor(test_sensor_id)
 
-        task_iterations = 10
-        test_control_centre.delegate_task(test_swarm_bot_id, inner_test_task, task_iterations)
+        test_control_centre.define_data_flow(test_swarm_bot_id, test_sensor_id, [test_control_centre.get_id()])
 
-        run_logs = test_control_centre.get_run_logs(test_swarm_bot_id)
-        self.assertEqual(task_iterations, len(run_logs))
+        expected_val = test_swarm_bot.read_from_sensor("SENSOR_NAME")
+        actual_val = test_control_centre.read_from_memory(test_swarm_bot_id, test_sensor_id)[0]
+        self.assertEqual(expected_val, actual_val)
         
 
 if __name__ == "__main__":
