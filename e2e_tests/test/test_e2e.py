@@ -2,7 +2,6 @@ import logging
 import unittest
 
 from swarm_bot.src.swarm_bot import SwarmBot
-from http_mock.src.http_mock import HttpMock
 from swarm_manager.src.swarm_manager import SwarmManager
 from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 
