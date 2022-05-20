@@ -41,3 +41,6 @@ class SwarmManager(object):
 
     def get_central_swarm_bot(self):
         return self.central_swarm_bot
+
+    def get_swarm_bots(self):
+        return self.swarm_bots
