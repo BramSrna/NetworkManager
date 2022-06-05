@@ -13,7 +13,7 @@ The first issue with data storage and transmission is defining how data will be 
 ## Data Flows
 Data flows define what the system shall do with data tensors as they are populated. The flows are rulesets that accompany the tensor collection definition and can be changed as needed.
 
-## Data Propagatopm
+## Data Propagation
 Data propagation in the network is dependent on how the robots are connected to each other:
 - Centralized Network: In this network configuration, all bots are directly connected a central computer. The individual bots are not directly connected to each other, but instead use the central computer as an intermediary.
 - Fully-Connected Decentralized Network: In this network configuration, all bots are directly connected to each other. No intermdefiaries are needed as bots can communicate directly with each other.
