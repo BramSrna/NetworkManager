@@ -21,7 +21,7 @@ Cons:
 - Memory usage of bot connections scales linearly with each new bot added to the network.
 
 ### Paritally Connected Swarms
-In a partially connected swarm, each bot is connected to at least one other bot in the swarm but there are no guarantees that it is connected to every other bot in the network. It is assumed that each bot can communicate with every other bot in the swarm, but intermediaries may be required to facilitate the communication.
+In a partially connected swarm, each bot is connected to at least one other bot in the swarm but there are no guarantees that it is connected to every other bot in the network. It is assured that each bot can communicate with every other bot in the swarm, but intermediaries may be required to facilitate the communication.
 
 Pros:
 - Low memory usage in bot connections as bots require as low as one connection.
