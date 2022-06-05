@@ -43,13 +43,13 @@ Cons:
 - If the central bot crashes, the swarm fails.
 - Central bot is a bottleneck in communication.
 
-### ML-Enabled Variable Connectivity Swarms
-In a ML-enabled variable connectivity swarm, bots connect and disconnect from each other as needed depending on the flow of data. For example, if two bots do not communicate with each other, or rarely communicate with each other, then they may disconnect from each other and use intermediaries when needed.
+### Variable Connectivity Swarms
+In a variable connectivity swarm, bots connect and disconnect from each other as needed depending on the flow of data. For example, if two bots do not communicate with each other, or rarely communicate with each other, then they may disconnect from each other and use intermediaries when needed.
 
 Pros:
 - Optimum connections are generally maintained.
 - Algorithmic protection against bot isolation.
 
 Cons:
-- Extremely heavy overhead of running the ML in the background.
+- Heavy overhead of running the connectivity threshold checks in the background.
 - Connections will need to be remade if data flow changes.
