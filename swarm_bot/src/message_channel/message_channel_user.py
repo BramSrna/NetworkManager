@@ -1,4 +1,4 @@
-from common.src.message_types import MessageTypes
+from swarm_bot.src.message_types import MessageTypes
 
 
 class MessageChannelUser(object):

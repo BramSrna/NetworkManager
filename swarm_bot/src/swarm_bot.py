@@ -1,4 +1,4 @@
-from common.src.message_types import MessageTypes
+from swarm_bot.src.message_types import MessageTypes
 from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
 from random import randint
 
@@ -8,12 +8,7 @@ from swarm_bot.src.message_channel.local_message_channel import LocalMessageChan
 class SwarmBot(MessageChannelUser):
     def __init__(self):
         self.id = id(self)
-
-        self.swarm_bots = []
         
-        self.curr_task = None
-        self.run_logs = []
-
         self.sensors = {}
 
         self.memory = {}
@@ -28,22 +23,21 @@ class SwarmBot(MessageChannelUser):
             raise Exception("ERROR: unknown sensor: " + str(sensor_id))
 
         for bot_id in data_flow:
-            if (bot_id not in self.swarm_bots) and (bot_id != self.get_id()):
+            if (bot_id not in self.msg_channels) and (bot_id != self.get_id()):
                 raise Exception("ERROR: unknown swarm bot: " + str(bot_id))
                 
         self.sensors[sensor_id] = data_flow
 
     def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot") -> None:
         bot_id = new_swarm_bot.get_id()
-        if not bot_id in self.swarm_bots:
+        if not bot_id in self.msg_channels:
             self.msg_channels[bot_id] = LocalMessageChannel(self, new_swarm_bot)
-            self.swarm_bots.append(bot_id)
 
     def is_connected_to(self, swarm_bot_id: str) -> bool:
-        return swarm_bot_id in self.swarm_bots
+        return swarm_bot_id in self.msg_channels
 
     def get_connections(self) -> list:
-        return self.swarm_bots
+        return list(self.msg_channels.keys())
 
     def receive_message(self, sender_id: str, message_type: MessageTypes, message_payload: dict) -> None:
         if message_type == MessageTypes.SENSOR_VAL:
