@@ -1,7 +1,7 @@
-from common.src.message_types import MessageTypes
+from swarm_bot.src.message_types import MessageTypes
 
 
-class HttpCommunicator(object):
+class MessageChannelUser(object):
     def __init__(self):
         pass
 
