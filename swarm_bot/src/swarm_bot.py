@@ -2,8 +2,8 @@ from swarm_bot.src.message_types import MessageTypes
 from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
 from random import randint
 
-from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
 from swarm_bot.src.message_format.local_message_format import LocalMessageFormat
+from swarm_bot.src.message_format.message_format import MessageFormat
 
 
 class SwarmBot(MessageChannelUser):
@@ -31,6 +31,7 @@ class SwarmBot(MessageChannelUser):
     def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot") -> None:
         bot_id = new_swarm_bot.get_id()
         if bot_id not in self.msg_channels:
+            from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
             self.msg_channels[bot_id] = LocalMessageChannel(self, new_swarm_bot)
 
     def is_connected_to(self, swarm_bot_id: str) -> bool:
@@ -39,7 +40,7 @@ class SwarmBot(MessageChannelUser):
     def get_connections(self) -> list:
         return list(self.msg_channels.keys())
 
-    def receive_message(self, message) -> None:
+    def receive_message(self, message: MessageFormat) -> None:
         message_type = message.get_message_type()
         message_payload = message.get_message_payload()
         sender_id = message.get_sender_id()
@@ -72,7 +73,7 @@ class SwarmBot(MessageChannelUser):
     def read_from_memory(self, swarm_bot_id: str, sensor_id: str) -> list:
         return self.memory[swarm_bot_id][sensor_id]
 
-    def write_to_memory(self, bot_id, sensor_id, new_val):
+    def write_to_memory(self, bot_id: int, sensor_id: int, new_val: object) -> None:
         if bot_id not in self.memory:
             self.memory[bot_id] = {}
         if sensor_id not in self.memory[bot_id]:
