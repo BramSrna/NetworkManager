@@ -13,4 +13,3 @@ class MessageChannelUser(object):
 
     def get_id(self) -> None:
         raise Exception("ERROR: The get_id method must be implemented by the child class.")
-

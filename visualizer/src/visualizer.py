@@ -1,4 +1,3 @@
-import os
 import sys
 import pygame
 import math
@@ -7,9 +6,10 @@ from pygame.locals import QUIT
 
 sys.path.append('../..')
 
-from swarm_bot.src.swarm_bot import SwarmBot
-from swarm_manager.src.swarm_manager import SwarmManager
-from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
+from swarm_bot.src.swarm_bot import SwarmBot  # noqa: E402
+from swarm_manager.src.swarm_manager import SwarmManager  # noqa: E402
+from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel  # noqa: E402
+
 
 class Visualizer(object):
     def __init__(self):
@@ -31,7 +31,7 @@ class Visualizer(object):
     def visualize_swarm(self):
         pygame.init()
 
-        display = self.__generate_display()            
+        display = self.__generate_display()
         self.__populate_display(display)
 
         while True:
@@ -83,7 +83,7 @@ class Visualizer(object):
 
             bot_centres[bot_id] = {}
             bot_centres[bot_id]["CENTRE"] = (x, y)
-            
+
             pygame.draw.circle(display, self.swarm_bot_colour, (x, y), bot_diameter / 2)
 
             # Label the bot with its ID
@@ -103,6 +103,7 @@ class Visualizer(object):
         for bot_id in swarm_bot_ids:
             for connection in swarm_bots[bot_id].get_connections():
                 pygame.draw.line(display, self.connection_colour, bot_centres[bot_id]["CENTRE"], bot_centres[connection]["CENTRE"])
+
 
 if __name__ == "__main__":
     visualizer = Visualizer()

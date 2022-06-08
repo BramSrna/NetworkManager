@@ -5,6 +5,7 @@ from swarm_bot.src.swarm_bot import SwarmBot
 from swarm_manager.src.swarm_manager import SwarmManager
 from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 
+
 class TestSwarmManager(unittest.TestCase):
     def test_new_bot_added_in_fully_connected_network_will_be_connected_to_all_other_bots(self):
         test_swarm_manager = SwarmManager(SwarmConnectivityLevel.FULLY_CONNECTED)
@@ -65,8 +66,6 @@ class TestSwarmManager(unittest.TestCase):
         self.assertEqual(1, len(connections))
         self.assertEqual(test_swarm_manager.get_central_swarm_bot().get_id(), connections[0])
 
-
-        
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
