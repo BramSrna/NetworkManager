@@ -3,6 +3,7 @@ import unittest
 
 from swarm_bot.src.swarm_bot import SwarmBot
 
+
 class TestSwarmBot(unittest.TestCase):
     def test_swarm_bot_will_throw_error_when_data_flow_is_defined_with_unknown_bots(self):
         test_swarm_bot_1 = SwarmBot()

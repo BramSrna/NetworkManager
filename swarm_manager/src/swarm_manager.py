@@ -3,6 +3,7 @@ from random import choice
 from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 from swarm_bot.src.swarm_bot import SwarmBot
 
+
 class SwarmManager(object):
     def __init__(self, swarm_connectivity_level: SwarmConnectivityLevel):
         self.swarm_connectivity_level = swarm_connectivity_level
