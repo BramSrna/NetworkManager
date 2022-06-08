@@ -1,6 +1,5 @@
 import logging
 import unittest
-from http_mock.src.http_mock import HttpMock
 
 from swarm_bot.src.swarm_bot import SwarmBot
 
@@ -26,12 +25,6 @@ class TestSwarmBot(unittest.TestCase):
         test_swarm_bot_1 = SwarmBot()
         test_swarm_bot_2 = SwarmBot()
         test_swarm_bot_3 = SwarmBot()
-
-        http_mock = HttpMock()
-
-        test_swarm_bot_1.set_http_mock(http_mock)
-        test_swarm_bot_2.set_http_mock(http_mock)
-        test_swarm_bot_3.set_http_mock(http_mock)
 
         sensor_id = 0
         test_swarm_bot_1.add_sensor(sensor_id)

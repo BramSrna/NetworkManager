@@ -1,16 +1,13 @@
-from xmlrpc.client import Boolean, boolean
 from common.src.message_types import MessageTypes
-from http_mock.src.http_communicator import HttpCommunicator
+from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
 from random import randint
 
-from http_mock.src.http_mock import HttpMock
+from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
 
 
-class SwarmBot(HttpCommunicator):
+class SwarmBot(MessageChannelUser):
     def __init__(self):
         self.id = id(self)
-
-        self.http_mock = None
 
         self.swarm_bots = []
         
@@ -21,9 +18,7 @@ class SwarmBot(HttpCommunicator):
 
         self.memory = {}
 
-    def set_http_mock(self, new_http_mock: HttpMock) -> None:
-        self.http_mock = new_http_mock
-        self.http_mock.add_http_communicator(self)
+        self.msg_channels = {}
 
     def get_id(self) -> int:
         return self.id
@@ -41,6 +36,7 @@ class SwarmBot(HttpCommunicator):
     def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot") -> None:
         bot_id = new_swarm_bot.get_id()
         if not bot_id in self.swarm_bots:
+            self.msg_channels[bot_id] = LocalMessageChannel(self, new_swarm_bot)
             self.swarm_bots.append(bot_id)
 
     def is_connected_to(self, swarm_bot_id: str) -> bool:
@@ -60,7 +56,7 @@ class SwarmBot(HttpCommunicator):
             raise Exception("ERROR: Unknown or unhandled message type: " + str(message_type))
 
     def send_message(self, target_bot_id: str, message_type: MessageTypes, message_payload: dict) -> None:
-        self.http_mock.send_message(self.id, target_bot_id, message_type, message_payload)
+        self.msg_channels[target_bot_id].send_message(message_type, message_payload)
 
     def add_sensor(self, sensor_id: str) -> None:
         self.sensors[sensor_id] = []

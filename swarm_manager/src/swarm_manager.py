@@ -1,14 +1,11 @@
 from random import choice
 
-from http_mock.src.http_mock import HttpMock
 from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 from swarm_bot.src.swarm_bot import SwarmBot
 
 class SwarmManager(object):
     def __init__(self, swarm_connectivity_level: SwarmConnectivityLevel):
         self.swarm_connectivity_level = swarm_connectivity_level
-
-        self.http_mock = HttpMock()
 
         self.central_swarm_bot = None
 
@@ -36,8 +33,6 @@ class SwarmManager(object):
         new_id = new_bot.get_id()
         if new_id not in self.swarm_bots:
             self.swarm_bots[new_id] = new_bot
-
-        new_bot.set_http_mock(self.http_mock)
 
     def get_central_swarm_bot(self):
         return self.central_swarm_bot
