@@ -35,8 +35,5 @@ class MessageFormat(object):
     def get_intermediaries(self):
         return self.intermediaries
 
-    def set_propagator_id(self, new_id):
-        self.propagator_id = new_id
-
     def get_propagator_id(self):
         return self.propagator_id
