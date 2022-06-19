@@ -12,6 +12,10 @@ class SwarmManager(object):
 
         self.swarm_bots = {}
 
+    def teardown(self):
+        for _, bot in self.swarm_bots.items():
+            bot.teardown()
+
     def add_swarm_bot(self, new_bot: SwarmBot) -> None:
         if self.swarm_connectivity_level == SwarmConnectivityLevel.FULLY_CONNECTED:
             for bot_id, bot in self.swarm_bots.items():

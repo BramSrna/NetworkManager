@@ -7,18 +7,36 @@ from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 
 
 class TestSwarmManager(unittest.TestCase):
+    def setUp(self):
+        self.test_swarm_bots = []
+        self.test_swarm_managers = []
+
+    def tearDown(self):
+        for bot in self.test_swarm_bots:
+            bot.teardown()
+
+    def create_swarm_bot(self):
+        new_bot = SwarmBot()
+        self.test_swarm_bots.append(new_bot)
+        return new_bot
+
+    def create_swarm_manager(self, connectivity_type):
+        new_manager = SwarmManager(connectivity_type)
+        self.test_swarm_managers.append(new_manager)
+        return new_manager
+
     def test_new_bot_added_in_fully_connected_network_will_be_connected_to_all_other_bots(self):
         test_swarm_manager = SwarmManager(SwarmConnectivityLevel.FULLY_CONNECTED)
 
-        test_swarm_bot_1 = SwarmBot()
-        test_swarm_bot_2 = SwarmBot()
-        test_swarm_bot_3 = SwarmBot()
+        test_swarm_bot_1 = self.create_swarm_bot()
+        test_swarm_bot_2 = self.create_swarm_bot()
+        test_swarm_bot_3 = self.create_swarm_bot()
 
         test_swarm_manager.add_swarm_bot(test_swarm_bot_1)
         test_swarm_manager.add_swarm_bot(test_swarm_bot_2)
         test_swarm_manager.add_swarm_bot(test_swarm_bot_3)
 
-        new_swarm_bot = SwarmBot()
+        new_swarm_bot = self.create_swarm_bot()
 
         test_swarm_manager.add_swarm_bot(new_swarm_bot)
 
@@ -29,15 +47,15 @@ class TestSwarmManager(unittest.TestCase):
     def test_new_bot_added_in_partially_connected_network_will_be_connected_to_random_bot(self):
         test_swarm_manager = SwarmManager(SwarmConnectivityLevel.PARTIALLY_CONNECTED)
 
-        test_swarm_bot_1 = SwarmBot()
-        test_swarm_bot_2 = SwarmBot()
-        test_swarm_bot_3 = SwarmBot()
+        test_swarm_bot_1 = self.create_swarm_bot()
+        test_swarm_bot_2 = self.create_swarm_bot()
+        test_swarm_bot_3 = self.create_swarm_bot()
 
         test_swarm_manager.add_swarm_bot(test_swarm_bot_1)
         test_swarm_manager.add_swarm_bot(test_swarm_bot_2)
         test_swarm_manager.add_swarm_bot(test_swarm_bot_3)
 
-        new_swarm_bot = SwarmBot()
+        new_swarm_bot = self.create_swarm_bot()
 
         test_swarm_manager.add_swarm_bot(new_swarm_bot)
 
@@ -49,15 +67,15 @@ class TestSwarmManager(unittest.TestCase):
     def test_new_bot_added_in_centralized_network_will_be_connected_to_central_swarm_bot(self):
         test_swarm_manager = SwarmManager(SwarmConnectivityLevel.CENTRALIZED)
 
-        test_swarm_bot_1 = SwarmBot()
-        test_swarm_bot_2 = SwarmBot()
-        test_swarm_bot_3 = SwarmBot()
+        test_swarm_bot_1 = self.create_swarm_bot()
+        test_swarm_bot_2 = self.create_swarm_bot()
+        test_swarm_bot_3 = self.create_swarm_bot()
 
         test_swarm_manager.add_swarm_bot(test_swarm_bot_1)
         test_swarm_manager.add_swarm_bot(test_swarm_bot_2)
         test_swarm_manager.add_swarm_bot(test_swarm_bot_3)
 
-        new_swarm_bot = SwarmBot()
+        new_swarm_bot = self.create_swarm_bot()
 
         test_swarm_manager.add_swarm_bot(new_swarm_bot)
 
