@@ -8,7 +8,6 @@ Execution contracts are the core of a task. They are defined by the user to spec
 ### Setup
 The setup stage is used to specify what state the swarm shall be in before executing the task. This information includes:
 - The number of bots required to execute the task
-- A list of required bots for executing (i.e specifically choosing bots by ID)
 - Abstraction layer definitions
 
 ### Body
