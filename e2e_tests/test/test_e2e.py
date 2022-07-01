@@ -10,6 +10,7 @@ from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 class TestE2e(unittest.TestCase):
     def setUp(self):
         self.test_swarm_bots = []
+        self.test_swarm_managers = []
 
     def tearDown(self):
         for bot in self.test_swarm_bots:
@@ -19,6 +20,11 @@ class TestE2e(unittest.TestCase):
         new_bot = SwarmBot()
         self.test_swarm_bots.append(new_bot)
         return new_bot
+
+    def create_swarm_manager(self, connectivity_type):
+        new_manager = SwarmManager(connectivity_type)
+        self.test_swarm_managers.append(new_manager)
+        return new_manager
 
     def test_data_flows_can_be_assigned_to_sensors(self):
         test_swarm_manager = SwarmManager(SwarmConnectivityLevel.FULLY_CONNECTED)
@@ -42,6 +48,27 @@ class TestE2e(unittest.TestCase):
 
         actual_val = test_swarm_bot_2.read_from_memory(test_swarm_bot_1.get_id(), test_sensor_id)[0]
         self.assertEqual(expected_val, actual_val)
+
+    def test_tasks_can_de_distributed_to_a_swarm_through_the_swarm_manager(self):
+        test_swarm_manager = self.create_swarm_manager(SwarmConnectivityLevel.FULLY_CONNECTED)
+
+        test_swarm_bot_1 = self.create_swarm_bot()
+        test_swarm_bot_2 = self.create_swarm_bot()
+        test_swarm_bot_3 = self.create_swarm_bot()
+
+        test_swarm_manager.add_swarm_bot(test_swarm_bot_1)
+        test_swarm_manager.add_swarm_bot(test_swarm_bot_2)
+        test_swarm_manager.add_swarm_bot(test_swarm_bot_3)
+
+        class SimpleTask(SwarmTask):
+            def __init__(self):
+                self.req_num_bots = 1
+                self.task_complete = False
+
+            def is_task_complete(self):
+                return self.task_complete
+
+        test_swarm_manager.distribute_task(SimpleTask())
 
 
 if __name__ == "__main__":
