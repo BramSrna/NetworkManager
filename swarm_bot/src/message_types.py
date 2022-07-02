@@ -2,13 +2,9 @@ from enum import Enum
 
 
 class MessageTypes(Enum):
-    NEW_DATA_FLOW = 1
-    SENSOR_VAL = 2
-    PATH_CHECK = 3
-    MSG_RESPONSE = 4
-    PROPAGATION_DEAD_END = 5
-    NEW_TASK = 6
-    REQUEST_TASK_EXECUTORS = 7
-    TASK_SIGNUP = 8
-    TASK_COMPLETE = 9
-    REQUEST_TASK_TRANSFER = 10
+    SENSOR_VAL = 1
+    PATH_CHECK = 2
+    MSG_RESPONSE = 3
+    PROPAGATION_DEAD_END = 4
+    NEW_TASK = 5
+    REQUEST_TASK_TRANSFER = 6

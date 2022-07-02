@@ -24,9 +24,6 @@ class SwarmBot(MessageChannelUser):
 
         self.assigned_task = None
         self.task_queue = []
-        self.task_executor_request_queue = []
-
-        self.executor_ids = []
 
         self.task_execution_history = []
 
@@ -97,12 +94,6 @@ class SwarmBot(MessageChannelUser):
                 self.write_to_memory(sender_id, sensor_id, data)
             elif message_type == MessageTypes.NEW_TASK:
                 self.handle_new_task_message(message)
-            elif message_type == MessageTypes.REQUEST_TASK_EXECUTORS:
-                self.handle_request_task_executors_message(message)
-            elif message_type == MessageTypes.TASK_SIGNUP:
-                self.handle_task_signup_message(message)
-            elif message_type == MessageTypes.TASK_COMPLETE:
-                self.handle_task_complete_message(message)
             elif message_type == MessageTypes.REQUEST_TASK_TRANSFER:
                 message_payload = message.get_message_payload()
                 task = None
@@ -228,9 +219,6 @@ class SwarmBot(MessageChannelUser):
 
     def get_task_queue(self):
         return self.task_queue
-
-    def get_executor_ids(self):
-        return self.executor_ids
 
     def get_task_execution_history(self):
         return self.task_execution_history
