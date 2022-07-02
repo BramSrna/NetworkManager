@@ -2,6 +2,7 @@ import unittest
 
 from swarm_bot.src.swarm_bot import SwarmBot
 
+
 class SwarmBotTestClass(unittest.TestCase):
     def setUp(self):
         self.test_swarm_bots = []

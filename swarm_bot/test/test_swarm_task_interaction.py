@@ -1,9 +1,7 @@
 import logging
 import unittest
 import time
-import threading
 
-from swarm_bot.src.swarm_bot import SwarmBot
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 from swarm_task.src.swarm_task import SwarmTask
 
@@ -21,6 +19,7 @@ class SimpleTask(SwarmTask):
     def execute_task(self):
         time.sleep(self.sleep_time)
         self.task_complete = True
+
 
 class TestSwarmTaskInteraction(SwarmBotTestClass):
     def test_swarm_bot_will_execute_task_when_not_already_executing_a_task(self):
@@ -84,9 +83,6 @@ class TestSwarmTaskInteraction(SwarmBotTestClass):
 
         self.assertNotIn(test_task_2, test_swarm_bot_1.get_task_execution_history())
         self.assertNotIn(test_task_1, test_swarm_bot_2.get_task_execution_history())
-
-
-
 
 
 if __name__ == "__main__":

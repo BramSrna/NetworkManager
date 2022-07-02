@@ -49,27 +49,6 @@ class TestE2e(unittest.TestCase):
         actual_val = test_swarm_bot_2.read_from_memory(test_swarm_bot_1.get_id(), test_sensor_id)[0]
         self.assertEqual(expected_val, actual_val)
 
-    def test_tasks_can_de_distributed_to_a_swarm_through_the_swarm_manager(self):
-        test_swarm_manager = self.create_swarm_manager(SwarmConnectivityLevel.FULLY_CONNECTED)
-
-        test_swarm_bot_1 = self.create_swarm_bot()
-        test_swarm_bot_2 = self.create_swarm_bot()
-        test_swarm_bot_3 = self.create_swarm_bot()
-
-        test_swarm_manager.add_swarm_bot(test_swarm_bot_1)
-        test_swarm_manager.add_swarm_bot(test_swarm_bot_2)
-        test_swarm_manager.add_swarm_bot(test_swarm_bot_3)
-
-        class SimpleTask(SwarmTask):
-            def __init__(self):
-                self.req_num_bots = 1
-                self.task_complete = False
-
-            def is_task_complete(self):
-                return self.task_complete
-
-        test_swarm_manager.distribute_task(SimpleTask())
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)

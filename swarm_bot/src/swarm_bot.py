@@ -1,5 +1,4 @@
 import threading
-import queue
 
 from swarm_bot.src.message_types import MessageTypes
 from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
@@ -117,6 +116,8 @@ class SwarmBot(MessageChannelUser):
                 if task is not None:
                     self.task_queue.pop(i)
                 self.create_message(message.get_original_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": message.get_id(), "TASK": task}, False)
+            elif message_type == MessageTypes.PROPAGATION_DEAD_END:
+                pass
             else:
                 raise Exception("ERROR: Unknown message type: " + str(message_type))
 
@@ -237,48 +238,3 @@ class SwarmBot(MessageChannelUser):
     def startup(self):
         thread = threading.Thread(target=self.task_executor_loop)
         thread.start()
-
-        
-
-
-# Swarm bot receives task
-#   If the task only requires one bot
-#       If the swarm bot is not currently executing a task
-#           Pick up the task
-#           Notify swarm that task is being executed
-#               Swarm bots remove task from queue when this message is received
-#           Execute task
-#       If the swarm bot is currently executing a task
-#           Notify swarm of new task
-#           Add swarm to task queue
-#   If the task requires multiple bots
-#       If the bot is not currently part of an execution group
-#           Request execution group members
-#           Wait for group to reach required size
-#           Notify swarm task is being executed
-#           Execute task
-#       If the bot is currently part of an execution group
-#           If the group is not currently executing a task
-#               If the group has enough members to run the task
-#                   Notify swarm task is being executed
-#                   Run the task
-#               If the group does not have enough members to run the task
-#                   Notify swarm of new task
-#                   Add swarm to task queue
-#           If the group is currently executing a task
-#               Notify swarm of new task
-#               Add swarm to task queue
-
-# Task group lifecycle
-#   When bot receives a task that requires multiple bots
-#       Bot sends out message to request group members
-#       Response for group member is received
-#           If the size of the group is less than the number of required bots for the largest task in the queue
-#               Responder bot joins the task group
-#           If the size of the group is greater than or equal to the number of required bots for the largest task in the queue
-#               Responder bot does not join the task group
-#       While size of task group is less than the number of required bots for the largest task in the queue
-#           Group executes tasks in the queue that require fewer members
-#       When target group size is reached
-#           Execute the task that caused the group to be formed
-#       Teardown group    

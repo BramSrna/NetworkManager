@@ -1,8 +1,6 @@
 import logging
 import unittest
-import time
 
-from swarm_bot.src.swarm_bot import SwarmBot
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 
 
