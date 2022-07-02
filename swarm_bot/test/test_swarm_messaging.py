@@ -2,22 +2,10 @@ import logging
 import unittest
 import time
 
-from swarm_bot.src.swarm_bot import SwarmBot
+from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 
 
-class TestSwarmBot(unittest.TestCase):
-    def setUp(self):
-        self.test_swarm_bots = []
-
-    def tearDown(self):
-        for bot in self.test_swarm_bots:
-            bot.teardown()
-
-    def create_swarm_bot(self):
-        new_bot = SwarmBot()
-        self.test_swarm_bots.append(new_bot)
-        return new_bot
-
+class TestSwarmMessaging(SwarmBotTestClass):
     def test_swarm_bot_will_throw_error_when_data_flow_is_defined_with_unreachable_bot_no_bots(self):
         test_swarm_bot_1 = self.create_swarm_bot()
 

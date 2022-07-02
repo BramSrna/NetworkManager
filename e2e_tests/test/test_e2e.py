@@ -10,6 +10,7 @@ from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 class TestE2e(unittest.TestCase):
     def setUp(self):
         self.test_swarm_bots = []
+        self.test_swarm_managers = []
 
     def tearDown(self):
         for bot in self.test_swarm_bots:
@@ -19,6 +20,11 @@ class TestE2e(unittest.TestCase):
         new_bot = SwarmBot()
         self.test_swarm_bots.append(new_bot)
         return new_bot
+
+    def create_swarm_manager(self, connectivity_type):
+        new_manager = SwarmManager(connectivity_type)
+        self.test_swarm_managers.append(new_manager)
+        return new_manager
 
     def test_data_flows_can_be_assigned_to_sensors(self):
         test_swarm_manager = SwarmManager(SwarmConnectivityLevel.FULLY_CONNECTED)
