@@ -2,7 +2,6 @@ import threading
 
 from swarm_bot.src.message_types import MessageTypes
 from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
-from random import randint
 
 from swarm_bot.src.message_format.local_message_format import LocalMessageFormat
 from swarm_bot.src.message_format.message_format import MessageFormat
@@ -15,6 +14,7 @@ class SwarmBot(MessageChannelUser):
 
         self.sensors = {}
         self.memory = {}
+        self.data_flows = {}
 
         self.msg_channels = {}
 
@@ -55,7 +55,7 @@ class SwarmBot(MessageChannelUser):
                 if not path_exists:
                     raise Exception("ERROR: unreachable swarm bot: " + str(bot_id))
 
-        self.sensors[sensor_id] = data_flow
+        self.data_flows[sensor_id] = data_flow
 
     def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot") -> None:
         bot_id = new_swarm_bot.get_id()
@@ -156,18 +156,21 @@ class SwarmBot(MessageChannelUser):
                         resp_flag.clear()
             return self.msg_inbox[message.get_id()]["RESPONSES"]
 
-    def add_sensor(self, sensor_id: str) -> None:
-        self.sensors[sensor_id] = []
+    def add_sensor(self, sensor) -> None:
+        self.sensors[sensor.get_id()] = sensor
 
-    def read_from_sensor(self, sensor_id: str) -> int:
-        new_val = randint(1, 10)
-        data_flow = self.sensors[sensor_id]
-        for id in data_flow:
-            if id == self.id:
-                self.write_to_memory(self.get_id(), sensor_id, new_val)
-            else:
-                self.create_message(id, MessageTypes.SENSOR_VAL, {"SENSOR_ID": sensor_id, "DATA": new_val}, False)
-        return new_val
+    def read_from_sensor(self, sensor_id: str, additional_params) -> int:
+        read_val = self.sensors[sensor_id].read_from_sensor(additional_params)
+
+        if sensor_id in self.data_flows:
+            data_flow = self.data_flows[sensor_id]
+            for id in data_flow:
+                if id == self.id:
+                    self.write_to_memory(self.get_id(), sensor_id, read_val)
+                else:
+                    self.create_message(id, MessageTypes.SENSOR_VAL, {"SENSOR_ID": sensor_id, "DATA": read_val}, False)
+
+        return read_val
 
     def read_from_memory(self, swarm_bot_id: str, sensor_id: str) -> list:
         if swarm_bot_id in self.memory:
@@ -198,13 +201,16 @@ class SwarmBot(MessageChannelUser):
                             responses = self.create_message(next_task_info["HOLDER_ID"], MessageTypes.REQUEST_TASK_TRANSFER, {"TASK_ID": next_task_info["TASK_ID"]}, True)
                             target_response = responses[0].get_message_payload()
                             next_task = target_response["TASK"]
-                            print(next_task)
                     self.assigned_task = next_task
 
                     self.task_execution_history.append(self.assigned_task)
-                    executor_interface = ExecutorInterface(self.get_id())
+                    executor_interface = ExecutorInterface(self)
                     self.assigned_task.set_executor_interface(executor_interface)
-                    self.assigned_task.execute_task()
+                    curr_execution = 0
+                    max_executions = 10000
+                    while (not self.assigned_task.is_task_complete()) and (curr_execution < max_executions):
+                        self.assigned_task.execute_task()
+                        curr_execution += 1
                     self.assigned_task = None
 
     def handle_new_task_message(self, message):
