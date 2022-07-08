@@ -131,21 +131,28 @@ class SwarmBot(MessageChannelUser):
         if len(targets) == 0:
             return []
 
+        num_msgs_to_send = 0
+
+        for bot_id in targets:
+            if bot_id not in message.get_intermediaries():
+                num_msgs_to_send += 1
+
+        if num_msgs_to_send == 0:
+            self.create_message(message.get_propagator_id(), MessageTypes.PROPAGATION_DEAD_END, {"ORIG_MSG_ID": message.get_id()}, False)
+        elif sync_message:
+            self.msg_inbox[message.get_id()] = {"RESPONSE_FLAG": threading.Event(), "NUM_REMAINING_RESPONSES": num_msgs_to_send, "RESPONSES": []}
+
         msg_threads = []
 
         for bot_id in targets:
             if bot_id not in message.get_intermediaries():
                 message.add_intermediary(self.get_id())
+                print("Sent message. Sender bot ID: {}, target bot ID: {}, message ID {}, message type: {}, sender message inbox {}\n\n".format(self.get_id(), target_bot_id, message.get_id(), message.get_message_type(), self.msg_inbox))
                 thread = threading.Thread(target=self.msg_channels[bot_id].send_message, args=(message,))
                 thread.start()
                 msg_threads.append(thread)
 
-        if len(msg_threads) == 0:
-            self.create_message(message.get_propagator_id(), MessageTypes.PROPAGATION_DEAD_END, {"ORIG_MSG_ID": message.get_id()}, False)
-        elif sync_message:
-            self.msg_inbox[message.get_id()] = {"RESPONSE_FLAG": threading.Event(), "NUM_REMAINING_RESPONSES": len(msg_threads), "RESPONSES": []}
-            print("Sent SYNC message. Sender bot ID: {}, target bot ID: {}, message ID {}, sender message inbox {}\n\n".format(self.get_id(), target_bot_id, message.get_id(), self.msg_inbox))
-
+        if sync_message:
             resp_flag = self.msg_inbox[message.get_id()]["RESPONSE_FLAG"]
             while (not resp_flag.is_set()):
                 resp_flag_set = resp_flag.wait(self.MSG_RESPONSE_TIMEOUT_LIMIT)
