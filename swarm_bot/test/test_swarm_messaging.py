@@ -3,20 +3,30 @@ import unittest
 import time
 
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
+from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
+
+
+class SimpleSensor(SwarmBotSensor):
+    def __init__(self):
+        super().__init__()
+
+    def read_from_sensor(self, additional_params):
+        return True
 
 
 class TestSwarmMessaging(SwarmBotTestClass):
     def test_swarm_bot_will_throw_error_when_data_flow_is_defined_with_unreachable_bot_no_bots(self):
         test_swarm_bot_1 = self.create_swarm_bot()
 
-        sensor_id = 0
+        sensor = SimpleSensor()
+        sensor_id = sensor.get_id()
 
         with self.assertRaises(Exception) as raised_error:
             test_swarm_bot_1.define_data_flow(sensor_id, [15])
 
         self.assertIn("unknown sensor", str(raised_error.exception))
 
-        test_swarm_bot_1.add_sensor(sensor_id)
+        test_swarm_bot_1.add_sensor(sensor)
 
         with self.assertRaises(Exception) as raised_error:
             test_swarm_bot_1.define_data_flow(sensor_id, [15])
@@ -29,14 +39,15 @@ class TestSwarmMessaging(SwarmBotTestClass):
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
 
-        sensor_id = 0
+        sensor = SimpleSensor()
+        sensor_id = sensor.get_id()
 
         with self.assertRaises(Exception) as raised_error:
             test_swarm_bot_1.define_data_flow(sensor_id, [-15])
 
         self.assertIn("unknown sensor", str(raised_error.exception))
 
-        test_swarm_bot_1.add_sensor(sensor_id)
+        test_swarm_bot_1.add_sensor(sensor)
 
         with self.assertRaises(Exception) as raised_error:
             test_swarm_bot_1.define_data_flow(sensor_id, [-15])
@@ -48,15 +59,16 @@ class TestSwarmMessaging(SwarmBotTestClass):
         test_swarm_bot_2 = self.create_swarm_bot()
         test_swarm_bot_3 = self.create_swarm_bot()
 
-        sensor_id = 0
-        test_swarm_bot_1.add_sensor(sensor_id)
+        sensor = SimpleSensor()
+        sensor_id = sensor.get_id()
+        test_swarm_bot_1.add_sensor(sensor)
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
 
         test_swarm_bot_1.define_data_flow(sensor_id, [test_swarm_bot_1.get_id(), test_swarm_bot_2.get_id(), test_swarm_bot_3.get_id()])
 
-        sensor_read_val = test_swarm_bot_1.read_from_sensor(sensor_id)
+        sensor_read_val = test_swarm_bot_1.read_from_sensor(sensor_id, ())
 
         start_time = time.time()
         while ((time.time() < start_time + 10) and (sensor_read_val not in test_swarm_bot_2.read_from_memory(test_swarm_bot_1.get_id(), sensor_id))):
@@ -75,15 +87,16 @@ class TestSwarmMessaging(SwarmBotTestClass):
         test_swarm_bot_2 = self.create_swarm_bot()
         test_swarm_bot_3 = self.create_swarm_bot()
 
-        sensor_id = 0
-        test_swarm_bot_1.add_sensor(sensor_id)
+        sensor = SimpleSensor()
+        sensor_id = sensor.get_id()
+        test_swarm_bot_1.add_sensor(sensor)
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_3)
 
         test_swarm_bot_1.define_data_flow(sensor_id, [test_swarm_bot_1.get_id(), test_swarm_bot_3.get_id()])
 
-        sensor_read_val = test_swarm_bot_1.read_from_sensor(sensor_id)
+        sensor_read_val = test_swarm_bot_1.read_from_sensor(sensor_id, ())
 
         start_time = time.time()
         while ((time.time() < start_time + 10) and (sensor_read_val not in test_swarm_bot_3.read_from_memory(test_swarm_bot_1.get_id(), sensor_id))):
@@ -99,8 +112,9 @@ class TestSwarmMessaging(SwarmBotTestClass):
         test_swarm_bot_3 = self.create_swarm_bot()
         test_swarm_bot_4 = self.create_swarm_bot()
 
-        sensor_id = 0
-        test_swarm_bot_1.add_sensor(sensor_id)
+        sensor = SimpleSensor()
+        sensor_id = sensor.get_id()
+        test_swarm_bot_1.add_sensor(sensor)
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_4)
@@ -108,7 +122,7 @@ class TestSwarmMessaging(SwarmBotTestClass):
 
         test_swarm_bot_1.define_data_flow(sensor_id, [test_swarm_bot_1.get_id(), test_swarm_bot_3.get_id()])
 
-        sensor_read_val = test_swarm_bot_1.read_from_sensor(sensor_id)
+        sensor_read_val = test_swarm_bot_1.read_from_sensor(sensor_id, ())
 
         start_time = time.time()
         while ((time.time() < start_time + 10) and (sensor_read_val not in test_swarm_bot_3.read_from_memory(test_swarm_bot_1.get_id(), sensor_id))):
