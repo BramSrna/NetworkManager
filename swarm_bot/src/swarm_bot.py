@@ -1,4 +1,5 @@
 import threading
+import time
 
 from swarm_bot.src.message_types import MessageTypes
 from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
@@ -6,6 +7,7 @@ from swarm_bot.src.message_channel.message_channel_user import MessageChannelUse
 from swarm_bot.src.message_format.local_message_format import LocalMessageFormat
 from swarm_bot.src.message_format.message_format import MessageFormat
 from swarm_bot.src.executor_interface import ExecutorInterface
+from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagation
 
 
 class SwarmBot(MessageChannelUser):
@@ -18,6 +20,7 @@ class SwarmBot(MessageChannelUser):
 
         self.msg_channels = {}
 
+        self.sent_messages = {}
         self.msg_inbox = {}
 
         self.MSG_RESPONSE_TIMEOUT_LIMIT = 10
@@ -27,16 +30,18 @@ class SwarmBot(MessageChannelUser):
 
         self.task_execution_history = []
 
+        self.propagation_strategy = NaivePropagation(self)
+
         self.run_task_executor_loop = threading.Event()
 
         self.startup()
 
     def teardown(self):
         self.run_task_executor_loop.set()
-        for msg_id in self.msg_inbox:
-            for _ in range(self.msg_inbox[msg_id]["NUM_REMAINING_RESPONSES"]):
-                self.msg_inbox[msg_id]["NUM_REMAINING_RESPONSES"] -= 1
-                self.msg_inbox[msg_id]["RESPONSE_FLAG"].set()
+        for msg_id in self.sent_messages:
+            for _ in range(self.sent_messages[msg_id]["NUM_REMAINING_RESPONSES"]):
+                self.sent_messages[msg_id]["NUM_REMAINING_RESPONSES"] -= 1
+                self.sent_messages[msg_id]["RESPONSE_FLAG"].set()
 
     def get_id(self) -> int:
         return self.id
@@ -78,6 +83,10 @@ class SwarmBot(MessageChannelUser):
         if (target_id != self.get_id()) and (target_id is not None):
             self.send_message(target_id, message, False)
         else:
+            msg_id = message.get_id()
+            if msg_id not in self.msg_inbox:
+                self.msg_inbox[msg_id] = {}
+
             message_type = message.get_message_type()
 
             if message_type == MessageTypes.MSG_RESPONSE:
@@ -109,19 +118,39 @@ class SwarmBot(MessageChannelUser):
                 self.create_message(message.get_original_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": message.get_id(), "TASK": task}, False)
             elif message_type == MessageTypes.PROPAGATION_DEAD_END:
                 pass
+            elif message_type == MessageTypes.BASIC_PROPAGATION_MESSAGE:
+                pass
             else:
                 raise Exception("ERROR: Unknown message type: " + str(message_type))
 
+        if target_id is None:
+            message.add_intermediary(self.get_id())
+            targets = self.propagation_strategy.determine_prop_targets(message)
+            for target in targets:
+                self.send_message(target, message, False)
+
         if "ORIG_MSG_ID" in message.get_message_payload():
             orig_msg_id = message.get_message_payload()["ORIG_MSG_ID"]
-            if orig_msg_id in self.msg_inbox:
-                self.msg_inbox[orig_msg_id]["RESPONSES"].append(message)
-                self.msg_inbox[orig_msg_id]["NUM_REMAINING_RESPONSES"] -= 1
-                self.msg_inbox[orig_msg_id]["RESPONSE_FLAG"].set()
+            if (orig_msg_id in self.sent_messages) and ("RESPONSES" in self.sent_messages[orig_msg_id]):
+                self.sent_messages[orig_msg_id]["RESPONSES"].append(message)
+                self.sent_messages[orig_msg_id]["NUM_REMAINING_RESPONSES"] -= 1
+                self.sent_messages[orig_msg_id]["RESPONSE_FLAG"].set()
 
     def create_message(self, target_bot_id: int, message_type: MessageTypes, message_payload: dict, sync_message) -> None:
         new_msg = LocalMessageFormat(self.get_id(), target_bot_id, message_type, message_payload)
-        return self.send_message(target_bot_id, new_msg, sync_message)
+
+        targets = []
+        if target_bot_id is None:
+            targets = self.propagation_strategy.determine_prop_targets(new_msg)
+        else:
+            targets.append(target_bot_id)
+
+        responses = []
+        for target in targets:
+            curr_response = self.send_message(target, new_msg, sync_message)
+            if isinstance(curr_response, list):
+                responses += curr_response
+        return responses
 
     def send_message(self, target_bot_id: int, message, sync_message) -> None:
         targets = list(self.msg_channels.keys())
@@ -137,31 +166,34 @@ class SwarmBot(MessageChannelUser):
             if bot_id not in message.get_intermediaries():
                 num_msgs_to_send += 1
 
+        self.sent_messages[message.get_id()] = {"TIME_SENT": time.time(), "NUM_REMAINING_RESPONSES": 0, "SENT_MSG": message}
         if num_msgs_to_send == 0:
             self.create_message(message.get_propagator_id(), MessageTypes.PROPAGATION_DEAD_END, {"ORIG_MSG_ID": message.get_id()}, False)
         elif sync_message:
-            self.msg_inbox[message.get_id()] = {"RESPONSE_FLAG": threading.Event(), "NUM_REMAINING_RESPONSES": num_msgs_to_send, "RESPONSES": []}
+            self.sent_messages[message.get_id()]["RESPONSE_FLAG"] = threading.Event()
+            self.sent_messages[message.get_id()]["NUM_REMAINING_RESPONSES"] = num_msgs_to_send
+            self.sent_messages[message.get_id()]["RESPONSES"] = []
 
         msg_threads = []
 
         for bot_id in targets:
             if bot_id not in message.get_intermediaries():
                 message.add_intermediary(self.get_id())
-                print("Sent message. Sender bot ID: {}, target bot ID: {}, message ID {}, message type: {}, sender message inbox {}\n\n".format(self.get_id(), target_bot_id, message.get_id(), message.get_message_type(), self.msg_inbox))
+                print("Sent message. Sender bot ID: {}, target bot ID: {}, message ID {}, message type: {}, sender message list {}\n\n".format(self.get_id(), target_bot_id, message.get_id(), message.get_message_type(), self.sent_messages))
                 thread = threading.Thread(target=self.msg_channels[bot_id].send_message, args=(message,))
                 thread.start()
                 msg_threads.append(thread)
 
         if sync_message:
-            resp_flag = self.msg_inbox[message.get_id()]["RESPONSE_FLAG"]
+            resp_flag = self.sent_messages[message.get_id()]["RESPONSE_FLAG"]
             while (not resp_flag.is_set()):
                 resp_flag_set = resp_flag.wait(self.MSG_RESPONSE_TIMEOUT_LIMIT)
                 if not resp_flag_set:
                     return []
                 else:
-                    if self.msg_inbox[message.get_id()]["NUM_REMAINING_RESPONSES"] > 0:
+                    if self.sent_messages[message.get_id()]["NUM_REMAINING_RESPONSES"] > 0:
                         resp_flag.clear()
-            return self.msg_inbox[message.get_id()]["RESPONSES"]
+            return self.sent_messages[message.get_id()]["RESPONSES"]
 
     def add_sensor(self, sensor) -> None:
         self.sensors[sensor.get_id()] = sensor
@@ -239,3 +271,24 @@ class SwarmBot(MessageChannelUser):
     def startup(self):
         thread = threading.Thread(target=self.task_executor_loop)
         thread.start()
+
+    def get_message_channels(self):
+        return self.msg_channels
+
+    def send_basic_propagation_message(self):
+        self.create_message(None, MessageTypes.BASIC_PROPAGATION_MESSAGE, {}, False)
+
+        latest_basic_prop_msg = None
+        latest_basic_prop_msg_time = None
+        for _, msg_info in self.sent_messages.items():
+            msg = msg_info["SENT_MSG"]
+            if msg.get_message_type() == MessageTypes.BASIC_PROPAGATION_MESSAGE:
+                msg_send_time = msg_info["TIME_SENT"]
+                if (latest_basic_prop_msg is None) or (msg_send_time > latest_basic_prop_msg_time):
+                    latest_basic_prop_msg = msg
+                    latest_basic_prop_msg_time = msg_send_time
+
+        return latest_basic_prop_msg.get_id()
+
+    def received_msg_with_id(self, msg_id):
+        return msg_id in self.msg_inbox

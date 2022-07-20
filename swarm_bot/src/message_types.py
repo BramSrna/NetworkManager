@@ -8,3 +8,4 @@ class MessageTypes(Enum):
     PROPAGATION_DEAD_END = 4
     NEW_TASK = 5
     REQUEST_TASK_TRANSFER = 6
+    BASIC_PROPAGATION_MESSAGE = 7
