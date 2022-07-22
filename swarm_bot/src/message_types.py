@@ -9,3 +9,4 @@ class MessageTypes(Enum):
     NEW_TASK = 5
     REQUEST_TASK_TRANSFER = 6
     BASIC_PROPAGATION_MESSAGE = 7
+    SYNC_MESSAGES = 8
