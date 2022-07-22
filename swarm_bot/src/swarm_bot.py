@@ -62,12 +62,15 @@ class SwarmBot(MessageChannelUser):
 
         self.data_flows[sensor_id] = data_flow
 
-    def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot") -> None:
+    def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot", run_sync=True) -> None:
         bot_id = new_swarm_bot.get_id()
         if bot_id not in self.msg_channels:
             from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
             self.msg_channels[bot_id] = LocalMessageChannel(self, new_swarm_bot)
-            new_swarm_bot.connect_to_swarm_bot(self)
+            new_swarm_bot.connect_to_swarm_bot(self, run_sync=False)
+
+        if run_sync:
+            self.sync_with_bot(bot_id)
 
     def is_connected_to(self, swarm_bot_id: str) -> bool:
         return swarm_bot_id in self.msg_channels
@@ -85,7 +88,7 @@ class SwarmBot(MessageChannelUser):
         else:
             msg_id = message.get_id()
             if msg_id not in self.msg_inbox:
-                self.msg_inbox[msg_id] = {}
+                self.msg_inbox[msg_id] = {"MSG": message}
 
             message_type = message.get_message_type()
 
@@ -120,6 +123,24 @@ class SwarmBot(MessageChannelUser):
                 pass
             elif message_type == MessageTypes.BASIC_PROPAGATION_MESSAGE:
                 pass
+            elif message_type == MessageTypes.SYNC_MESSAGES:
+                message_payload = message.get_message_payload()
+                id_list = message_payload["MSG_LIST"]
+                missing_msgs = []
+
+
+                rcvd_msg_ids = list(self.msg_inbox.keys())
+                sent_msg_ids = list(self.sent_messages.keys())
+
+                print(id_list)
+                print(rcvd_msg_ids)
+                print(sent_msg_ids)
+
+                for msg_id in id_list:
+                    if (msg_id not in rcvd_msg_ids) and (msg_id not in sent_msg_ids):
+                        missing_msgs.append(msg_id)
+
+                self.create_message(message.get_original_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": message.get_id(), "MSG_LIST": missing_msgs}, False)
             else:
                 raise Exception("ERROR: Unknown message type: " + str(message_type))
 
@@ -135,6 +156,11 @@ class SwarmBot(MessageChannelUser):
                 self.sent_messages[orig_msg_id]["RESPONSES"].append(message)
                 self.sent_messages[orig_msg_id]["NUM_REMAINING_RESPONSES"] -= 1
                 self.sent_messages[orig_msg_id]["RESPONSE_FLAG"].set()
+
+        if (len(self.msg_inbox.keys()) > 0) and (len(self.msg_inbox.keys()) % 10 == 0):
+            bot_ids = list(self.msg_channels.keys())
+            for bot_id in bot_ids:
+                self.sync_with_bot(bot_id)
 
     def create_message(self, target_bot_id: int, message_type: MessageTypes, message_payload: dict, sync_message) -> None:
         new_msg = LocalMessageFormat(self.get_id(), target_bot_id, message_type, message_payload)
@@ -292,3 +318,27 @@ class SwarmBot(MessageChannelUser):
 
     def received_msg_with_id(self, msg_id):
         return msg_id in self.msg_inbox
+
+    def sync_with_bot(self, bot_id):
+        if bot_id not in self.msg_channels:
+            return False
+
+        msg_list = []
+        for msg_id, msg_info in self.sent_messages.items():
+            if msg_info["SENT_MSG"].get_target_bot_id() is None:
+                msg_list.append(msg_id)
+        for msg_id, msg_info in self.msg_inbox.items():
+            if msg_info["MSG"].get_target_bot_id() is None:
+                msg_list.append(msg_id)
+
+        response = self.create_message(bot_id, MessageTypes.SYNC_MESSAGES, {"MSG_LIST": msg_list}, True)
+        missing_msg_list = response[0].get_message_payload()["MSG_LIST"]
+        print("HERE")
+        print(missing_msg_list)
+        for msg_id in missing_msg_list:
+            curr_msg = None
+            if msg_id in self.sent_messages:
+                curr_msg = self.sent_messages[msg_id]["SENT_MSG"]
+            else:
+                curr_msg = self.msg_inbox[msg_id]["MSG"]
+            self.send_message(bot_id, curr_msg, False)
