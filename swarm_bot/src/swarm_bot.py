@@ -128,13 +128,8 @@ class SwarmBot(MessageChannelUser):
                 id_list = message_payload["MSG_LIST"]
                 missing_msgs = []
 
-
                 rcvd_msg_ids = list(self.msg_inbox.keys())
                 sent_msg_ids = list(self.sent_messages.keys())
-
-                print(id_list)
-                print(rcvd_msg_ids)
-                print(sent_msg_ids)
 
                 for msg_id in id_list:
                     if (msg_id not in rcvd_msg_ids) and (msg_id not in sent_msg_ids):
@@ -333,8 +328,7 @@ class SwarmBot(MessageChannelUser):
 
         response = self.create_message(bot_id, MessageTypes.SYNC_MESSAGES, {"MSG_LIST": msg_list}, True)
         missing_msg_list = response[0].get_message_payload()["MSG_LIST"]
-        print("HERE")
-        print(missing_msg_list)
+
         for msg_id in missing_msg_list:
             curr_msg = None
             if msg_id in self.sent_messages:

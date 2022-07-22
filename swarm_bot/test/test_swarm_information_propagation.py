@@ -25,8 +25,6 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
 
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
 
-        print(msg_id)
-
         start_time = time.time()
         while ((time.time() < start_time + 10) and not (test_swarm_bot_2.received_msg_with_id(msg_id) and test_swarm_bot_3.received_msg_with_id(msg_id))):
             pass
@@ -55,8 +53,6 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_7)
 
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
-
-        print(msg_id)
 
         start_time = time.time()
         while ((time.time() < start_time + 10) and not (test_swarm_bot_4.received_msg_with_id(msg_id) and test_swarm_bot_5.received_msg_with_id(msg_id) and test_swarm_bot_6.received_msg_with_id(msg_id) and test_swarm_bot_7.received_msg_with_id(msg_id))):
@@ -87,8 +83,6 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_5.connect_to_swarm_bot(test_swarm_bot_1)
 
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
-
-        print(msg_id)
 
         start_time = time.time()
         while ((time.time() < start_time + 10) and not (test_swarm_bot_2.received_msg_with_id(msg_id) and test_swarm_bot_3.received_msg_with_id(msg_id) and test_swarm_bot_4.received_msg_with_id(msg_id) and test_swarm_bot_5.received_msg_with_id(msg_id))):
