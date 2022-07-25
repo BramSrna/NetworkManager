@@ -8,8 +8,7 @@ There are also some related areas:
 
 ## Propagation Strategy
 For decentralized propagation, there are a variety of methods that can be used for propagation. The methods that can be employed will be limited depending on the physical nature and topology of the system. In terms of the propagation strategies, these include:
-- Direct Messaging: The source bot delivers the message directly to every other bot in the swarm. This only works when the swarm is fully connected.
-- Naive Propagation: The source bot delivers the message to a percentage of the swarm. These receiver bots then repeat the process. 
+- Direct Messaging / Naive Propagation: The source bot delivers the message directly to every other bot in the swarm. This only works when the swarm is fully connected. In the case where the swarm is not fully connected, Naive Propagation can be used as a close counterpart. For Naive Propagation, the source bot delivers the message to just the bots it is connected to directly. These receiver bots then repeat the process. 
 - Shortest Path Propagation: The swarm maintains a ledger containing the messaging history. This history is then used to determine the optimum path from a source bot to every other bot for use when propagating messages.
 - Smart Propagation: Similar to shortest path propagation, but the path can be changed based on the current load on the machine.
 
