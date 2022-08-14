@@ -12,3 +12,15 @@ When two bots are not directly connected to each other and direct messaging is n
 3. The bots that receive the message shall check if they are the target bot. If they are, then they move to the next step. Otherwise, they shall repeat from step 1.
 4. Once the target bot receives the message, it shall parse it and respond along the path of bots that resulted in the bot first receiving the message.
 5. Depending on the connection strategy in use, the origin and target bots may then form a direct connection to speed up further messaging.
+
+### Shortest Path Propagation
+When using Naive Propagation where the message is broadcasted to every connected bot, messages will naturally follow the shortest path from the source bot to every other bot. The upsides to this method are that it increases the chance that every bot will receive the message and it is easy to implement. The downside, is the number of messages. Ideally, messages would only flow down the shortest path, but in the case of Naive Propagation the messages will flow down every path and will then need to be ignored by the source bot. To implement shortest path propagation, a set of weights could be maintained for every bot similar to a neural network. The implementation would work as follows:
+Initialization:
+1. Weights for all bots are initialized to 0
+In learning mode:
+1. Source bot creates message and propagates it using Naive Propagation.
+2. When a bot receives the message, it sends a message back down the path with information detailing how long the path was. When bots receive this message, they update their weights.
+In execution mode:
+1. Source bot creates message and sends it along the shortest path as deteilad by the weights.
+2. Response message is not sent and weights are not updated.
+The network can switch between learning mode and execution mode as needed (periodically, when bots are added, etc)

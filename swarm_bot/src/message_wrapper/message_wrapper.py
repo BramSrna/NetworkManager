@@ -1,15 +1,16 @@
 from swarm_bot.src.message_types import MessageTypes
 
 
-class MessageFormat(object):
-    def __init__(self, sender_id: int, target_bot_id: int, message_type: MessageTypes, message_payload: dict):
-        self.id = id(self)
+class MessageWrapper(object):
+    def __init__(self, msg_id, sender_id: int, target_bot_id: int, message_type: MessageTypes, message_payload: dict, sync_message):
+        self.id = msg_id
 
         self.sender_id = sender_id
         self.propagator_id = sender_id
         self.target_bot_id = target_bot_id
         self.message_type = message_type
         self.message_payload = message_payload
+        self.sync_message = sync_message
 
         self.intermediaries = [self.sender_id]
 
@@ -37,3 +38,6 @@ class MessageFormat(object):
 
     def get_propagator_id(self):
         return self.propagator_id
+
+    def is_sync_message(self):
+        return self.sync_message

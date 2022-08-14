@@ -1,6 +1,5 @@
 import logging
 import unittest
-import time
 from unittest.mock import MagicMock
 
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
@@ -25,18 +24,14 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
 
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
 
-        start_time = time.time()
-        while ((time.time() < start_time + 10) and (not test_swarm_bot_2.received_msg_with_id(msg_id))):
-            pass
+        self.wait_for_idle_swarm()
 
         self.assertTrue(test_swarm_bot_2.received_msg_with_id(msg_id))
         self.assertFalse(test_swarm_bot_3.received_msg_with_id(msg_id))
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
 
-        start_time = time.time()
-        while ((time.time() < start_time + 10) and (not test_swarm_bot_3.received_msg_with_id(msg_id))):
-            pass
+        self.wait_for_idle_swarm()
 
         self.assertTrue(test_swarm_bot_2.received_msg_with_id(msg_id))
         self.assertTrue(test_swarm_bot_3.received_msg_with_id(msg_id))
@@ -53,11 +48,8 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_3.sync_with_bot = MagicMock()
 
         for _ in range(10):
-            msg_id = test_swarm_bot_1.send_basic_propagation_message()
-
-            start_time = time.time()
-            while ((time.time() < start_time + 10) and (not test_swarm_bot_2.received_msg_with_id(msg_id) or not test_swarm_bot_3.received_msg_with_id(msg_id))):
-                pass
+            test_swarm_bot_1.send_basic_propagation_message()            
+            self.wait_for_idle_swarm()
 
         test_swarm_bot_2.sync_with_bot.assert_called_with(test_swarm_bot_1.get_id())
         test_swarm_bot_3.sync_with_bot.assert_called_with(test_swarm_bot_1.get_id())
