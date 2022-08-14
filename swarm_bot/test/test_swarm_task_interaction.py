@@ -31,9 +31,7 @@ class TestSwarmTaskInteraction(SwarmBotTestClass):
 
         test_swarm_bot.receive_task(test_task)
 
-        start_time = time.time()
-        while ((time.time() < start_time + 10) and (not test_task.is_task_complete())):
-            pass
+        self.wait_for_idle_swarm()
 
         self.assertTrue(test_task.is_task_complete())
 
@@ -49,9 +47,7 @@ class TestSwarmTaskInteraction(SwarmBotTestClass):
         test_swarm_bot.receive_task(test_task_1)
         test_swarm_bot.receive_task(test_task_2)
 
-        start_time = time.time()
-        while ((time.time() < start_time + 10) and ((not test_task_1.is_task_complete()) or (not test_task_2.is_task_complete()))):
-            pass
+        self.wait_for_idle_swarm()
 
         self.assertTrue(test_task_1.is_task_complete())
         self.assertTrue(test_task_2.is_task_complete())
@@ -71,9 +67,7 @@ class TestSwarmTaskInteraction(SwarmBotTestClass):
         test_swarm_bot_1.receive_task(test_task_1)
         test_swarm_bot_1.receive_task(test_task_2)
 
-        start_time = time.time()
-        while ((time.time() < start_time + 10) and ((not test_task_1.is_task_complete()) or (not test_task_2.is_task_complete()))):
-            pass
+        self.wait_for_idle_swarm()
 
         self.assertTrue(test_task_1.is_task_complete())
         self.assertTrue(test_task_2.is_task_complete())

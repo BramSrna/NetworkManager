@@ -12,9 +12,7 @@ from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel  #
 
 
 class Visualizer(object):
-    def __init__(self):
-        self.swarm_manager = None
-
+    def __init__(self, swarm_bot):
         self.visualizer_width = 500
         self.visualizer_height = 500
 
@@ -25,8 +23,7 @@ class Visualizer(object):
         self.connection_colour = (0, 255, 255)
         self.font_colour = (0, 0, 0)
 
-    def set_swarm_manager(self, new_swarm_manager):
-        self.swarm_manager = new_swarm_manager
+        self.swarm_bot = swarm_bot
 
     def visualize_swarm(self):
         pygame.init()
@@ -34,6 +31,9 @@ class Visualizer(object):
         display = self.__generate_display()
         self.__populate_display(display)
 
+        self._display_screen()
+
+    def _display_screen(self):
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -62,9 +62,10 @@ class Visualizer(object):
         if drawing_height < min_dim:
             min_dim = drawing_height
 
-        swarm_bots = self.swarm_manager.get_swarm_bots()
-        swarm_bot_ids = list(swarm_bots.keys())
-        num_bots = len(swarm_bots)
+        swarm_snapshot = self.swarm_bot.get_swarm_snapshot()
+        print(swarm_snapshot)
+        swarm_bot_ids = list(swarm_snapshot.keys())
+        num_bots = len(swarm_bot_ids)
 
         bot_diameter = min_dim / (num_bots * 2)
         placement_circle_radius = (min_dim - bot_diameter) / 2
@@ -100,8 +101,8 @@ class Visualizer(object):
             bot_ind += 1
 
         # Draw the connections between the bots
-        for bot_id in swarm_bot_ids:
-            for connection in swarm_bots[bot_id].get_connections():
+        for bot_id, connection_list in swarm_snapshot.items():
+            for connection in connection_list:
                 pygame.draw.line(display, self.connection_colour, bot_centres[bot_id]["CENTRE"], bot_centres[connection]["CENTRE"])
 
 
