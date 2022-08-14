@@ -1,7 +1,6 @@
 import sys
 import pygame
 import math
-import threading
 
 from pygame.locals import QUIT
 
@@ -33,8 +32,6 @@ class Visualizer(object):
         self.__populate_display(display)
 
         self._display_screen()
-        #thread = threading.Thread(target=self._display_screen)
-        #thread.start()
 
     def _display_screen(self):
         while True:

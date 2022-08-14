@@ -1,5 +1,6 @@
 import time
 
+
 class SwarmBotIdleListenerInterface(object):
     def __init__(self):
         self.num_busy_bots = 0

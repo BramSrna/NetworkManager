@@ -48,7 +48,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_3.sync_with_bot = MagicMock()
 
         for _ in range(10):
-            test_swarm_bot_1.send_basic_propagation_message()            
+            test_swarm_bot_1.send_basic_propagation_message()
             self.wait_for_idle_swarm()
 
         test_swarm_bot_2.sync_with_bot.assert_called_with(test_swarm_bot_1.get_id())

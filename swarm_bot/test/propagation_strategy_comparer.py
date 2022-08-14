@@ -1,4 +1,3 @@
-import time
 import traceback
 
 from random import randint
@@ -7,14 +6,15 @@ import sys
 
 sys.path.append('../..')
 
-from swarm_bot.src.swarm_bot import SwarmBot
-from visualizer.src.visualizer import Visualizer
-from swarm_bot.src.swarm_bot_idle_listener_interface import SwarmBotIdleListenerInterface
+from swarm_bot.src.swarm_bot import SwarmBot  # noqa: E402
+from visualizer.src.visualizer import Visualizer  # noqa: E402
+from swarm_bot.src.swarm_bot_idle_listener_interface import SwarmBotIdleListenerInterface  # noqa: E402
+
 
 class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
     def __init__(self, num_bots, connectivity_percentage, num_messages):
         SwarmBotIdleListenerInterface.__init__(self)
-        
+
         self.num_bots = num_bots
         self.connectivity_percentage = connectivity_percentage
         self.num_messages = num_messages
@@ -44,7 +44,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
         if visualize_swarm:
             self._visualize_swarm()
-            
+
         return self.swarm_bots, data
 
     def _display_snapshot_info(self, snapshot):
@@ -87,7 +87,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
         bot_ind = 0
         while num_messages > 0:
             bot = self.swarm_bots[bot_ind]
-            msg_id = bot.send_basic_propagation_message()
+            bot.send_basic_propagation_message()
             self.wait_for_idle_swarm()
             bot_ind += 1
             bot_ind %= len(self.swarm_bots)
@@ -120,36 +120,9 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
                     data[bot_id][key] = end_val - start_val
         return data
 
+
 if __name__ == "__main__":
     num_bots = 3
 
     comparer = PropagationStrategyComparer(num_bots, 100, 1)
     comparer.simulate_prop_strat(True, False)
-
-    # Basic Implementation (Full Connectivity, N = number of bots in the swarm)
-    # Every bot:
-    #   - Sends N - 1 messages
-    #   - Receives N - 1 messages
-    #   - Source bot ignores N - 1 messages, Receiver bots ignore N - 2 messages
-
-    # Source bot: Send 2, receive 0, ignore 0
-    # Receiver bots: Send 1, receive 2, ignore 1
-
-# BOT_ID: 2915207183856
-#         SENT_MSGS
-#                 588148: (<MessageTypes.BASIC_PROPAGATION_MESSAGE: 7>, 2)
-#         RCVD_MSGS
-#                 588148: (<MessageTypes.BASIC_PROPAGATION_MESSAGE: 7>, 2)
-#         NUM_IGNORED_MSGS: 2
-# BOT_ID: 2915211518656
-#         SENT_MSGS
-#                 588148: (<MessageTypes.BASIC_PROPAGATION_MESSAGE: 7>, 2)
-#         RCVD_MSGS
-#                 588148: (<MessageTypes.BASIC_PROPAGATION_MESSAGE: 7>, 2)
-#         NUM_IGNORED_MSGS: 1
-# BOT_ID: 2915211517792
-#         SENT_MSGS
-#                 588148: (<MessageTypes.BASIC_PROPAGATION_MESSAGE: 7>, 2)
-#         RCVD_MSGS
-#                 588148: (<MessageTypes.BASIC_PROPAGATION_MESSAGE: 7>, 2)
-#         NUM_IGNORED_MSGS: 1

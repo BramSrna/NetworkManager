@@ -1,7 +1,5 @@
 import logging
 import unittest
-from random import randint
-from swarm_bot.src.swarm_bot import SwarmBot
 
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
@@ -26,7 +24,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
 
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
-        
+
         self.wait_for_idle_swarm()
 
         self.assertTrue(test_swarm_bot_2.received_msg_with_id(msg_id))
@@ -51,7 +49,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_7)
 
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
-        
+
         self.wait_for_idle_swarm()
 
         self.assertTrue(test_swarm_bot_2.received_msg_with_id(msg_id))
@@ -79,7 +77,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         msg_id = test_swarm_bot_1.send_basic_propagation_message()
 
         self.wait_for_idle_swarm()
-        
+
         self.assertTrue(test_swarm_bot_2.received_msg_with_id(msg_id))
         self.assertTrue(test_swarm_bot_3.received_msg_with_id(msg_id))
         self.assertTrue(test_swarm_bot_4.received_msg_with_id(msg_id))
@@ -92,7 +90,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
 
         comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages)
         bots, test_output = comparer.simulate_prop_strat(False, False)
-        
+
         self.assertEqual(num_bots, len(test_output.keys()))
 
         ignoring_n_minus_one = 0
@@ -126,7 +124,6 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         self.assertEqual(num_bots - 1, ignoring_n_minus_two)
 
         self.assertEqual(0, ignoring_else)
-
 
 
 if __name__ == "__main__":
