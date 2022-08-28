@@ -1,0 +1,5 @@
+propagation_strategy: "NaivePropagation"
+message_channel: "LocalMessageChannel"
+message_wrapper: "LocalMessageWrapper"
+max_task_executions: 10000
+sync_message_threshold: 10

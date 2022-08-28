@@ -1,7 +1,10 @@
 import threading
 import time
+import os
+import yaml
 
 from random import randint
+from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
 
 from swarm_bot.src.message_types import MessageTypes
 from swarm_bot.src.message_channel.message_channel_user import MessageChannelUser
@@ -10,10 +13,11 @@ from swarm_bot.src.message_wrapper.local_message_wrapper import LocalMessageWrap
 from swarm_bot.src.message_wrapper.message_wrapper import MessageWrapper
 from swarm_bot.src.executor_interface import ExecutorInterface
 from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagation
+from swarm_bot.src.propagation_strategy.smart_propagation import SmartPropagation
 
 
 class SwarmBot(MessageChannelUser):
-    def __init__(self, propagation_strategy=NaivePropagation):
+    def __init__(self, additional_config_path=None, additional_config_dict=None):
         self.id = id(self)
 
         self.sensors = {}
@@ -28,14 +32,10 @@ class SwarmBot(MessageChannelUser):
         self.msg_inbox = []
         self.msg_outbox = []
 
-        self.MSG_RESPONSE_TIMEOUT_LIMIT = 10
-
         self.assigned_task = None
         self.task_queue = []
 
         self.task_execution_history = []
-
-        self.propagation_strategy = propagation_strategy(self)
 
         self.run_bot = threading.Event()
         self.msg_inbox_has_values = threading.Event()
@@ -56,6 +56,37 @@ class SwarmBot(MessageChannelUser):
             str(MessageTypes.BASIC_PROPAGATION_MESSAGE): self.handle_basic_propagation_message_message,
             str(MessageTypes.SYNC_MESSAGES): self.handle_sync_messages_message
         }
+
+        config = yaml.load(open(os.path.join(os.path.dirname(__file__), "./default_bot_config.yml")), Loader=yaml.FullLoader)
+        additional_config = {}
+        if additional_config_path is not None:
+            additional_config = yaml.load(open(os.path.join(os.path.dirname(__file__), additional_config_path)), Loader=yaml.FullLoader)
+
+        for key, value in additional_config.items():
+            config[key] = value
+
+        if additional_config_dict is not None:
+            for key, value in additional_config_dict.items():
+                config[key] = value
+
+        propagation_strategies = {
+            "NaivePropagation": NaivePropagation,
+            "SmartPropagation": SmartPropagation
+        }
+
+        message_channels = {
+            "LocalMessageChannel": LocalMessageChannel
+        }
+
+        message_wrappers = {
+            "LocalMessageWrapper": LocalMessageWrapper
+        }
+
+        self.propagation_strategy = propagation_strategies[config["propagation_strategy"]](self)
+        self.message_channel_type = message_channels[config["message_channel"]]
+        self.message_wrapper_type = message_wrappers[config["message_wrapper"]]
+        self.max_task_executions = config["max_task_executions"]
+        self.sync_message_threshold = config["sync_message_threshold"]
 
         self.startup()
 
@@ -81,8 +112,7 @@ class SwarmBot(MessageChannelUser):
     def connect_to_swarm_bot(self, new_swarm_bot: "SwarmBot", run_sync=True) -> None:
         bot_id = new_swarm_bot.get_id()
         if bot_id not in self.msg_channels:
-            from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
-            self.msg_channels[bot_id] = LocalMessageChannel(self, new_swarm_bot)
+            self.msg_channels[bot_id] = self.message_channel_type(self, new_swarm_bot)
             new_swarm_bot.connect_to_swarm_bot(self, run_sync=False)
 
             if run_sync:
@@ -111,7 +141,7 @@ class SwarmBot(MessageChannelUser):
             message_id = randint(0, 1000000)
 
         for target in targets:
-            new_msg = LocalMessageWrapper(message_id, self.get_id(), target_bot_id, message_type, message_payload)
+            new_msg = self.message_wrapper_type(message_id, self.get_id(), target_bot_id, message_type, message_payload)
 
             self.msg_outbox.append({"MESSAGE": new_msg, "TARGET_ID": target})
             self.msg_outbox_has_values.set()
@@ -331,7 +361,7 @@ class SwarmBot(MessageChannelUser):
                     executor_interface = ExecutorInterface(self)
                     self.assigned_task.set_executor_interface(executor_interface)
                     curr_execution = 0
-                    max_executions = 10000
+                    max_executions = self.max_task_executions
                     while (not self.assigned_task.is_task_complete()) and (curr_execution < max_executions):
                         self.assigned_task.execute_task()
                         curr_execution += 1
@@ -416,7 +446,7 @@ class SwarmBot(MessageChannelUser):
                         for target_bot_id in targets:
                             self.create_message(target_bot_id, message_type, message_payload, message_id=msg_id)
 
-                    if (len(self.rcvd_messages.keys()) > 0) and (len(self.rcvd_messages.keys()) % 10 == 0):
+                    if (len(self.rcvd_messages.keys()) > 0) and (len(self.rcvd_messages.keys()) % self.sync_message_threshold == 0):
                         bot_ids = list(self.msg_channels.keys())
                         for bot_id in bot_ids:
                             self.sync_with_bot(bot_id)
