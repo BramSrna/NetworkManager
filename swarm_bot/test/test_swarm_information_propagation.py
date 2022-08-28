@@ -4,6 +4,8 @@ import unittest
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
 from swarm_bot.test.propagation_strategy_comparer import PropagationStrategyComparer
+from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagation
+from swarm_bot.src.propagation_strategy.smart_propagation import SmartPropagation
 
 
 class SimpleSensor(SwarmBotSensor):
@@ -88,7 +90,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         connectivity_percentage = 100
         num_messages = 1
 
-        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages)
+        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, NaivePropagation)
         bots, test_output = comparer.simulate_prop_strat(False, False)
 
         self.assertEqual(num_bots, len(test_output.keys()))
@@ -124,6 +126,53 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         self.assertEqual(num_bots - 1, ignoring_n_minus_two)
 
         self.assertEqual(0, ignoring_else)
+
+    def test_smart_propagation_is_better_than_worst_case_implementation(self):
+        num_bots = 3
+        connectivity_percentage = 100
+        num_messages = 1
+
+        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, SmartPropagation)
+        bots, test_output = comparer.simulate_prop_strat(False, False)
+
+        self.assertEqual(num_bots, len(test_output.keys()))
+
+        source_bot = None
+        other_bots = []
+
+        for _, bot_info in test_output.items():
+            total_sent_msgs = 0
+            total_rcvd_msgs = 0
+
+            for _, msg_info in bot_info["SENT_MSGS"].items():
+                total_sent_msgs += msg_info[1]
+            for _, msg_info in bot_info["RCVD_MSGS"].items():
+                total_rcvd_msgs += msg_info[1]
+
+            num_ignored = bot_info["NUM_IGNORED_MSGS"]
+
+            info = {
+                "NUM_SENT": total_sent_msgs,
+                "NUM_RCVD": total_rcvd_msgs,
+                "NUM_IGNORED": num_ignored
+            }
+
+            if (total_sent_msgs == num_bots - 1) and (source_bot is None):
+                source_bot = info
+            else:
+                other_bots.append(info)
+
+        self.assertTrue(isinstance(source_bot, dict))
+        self.assertEqual(num_bots - 1, len(other_bots))
+
+        self.assertEqual(num_bots - 1, source_bot["NUM_SENT"])
+        self.assertEqual(0, source_bot["NUM_RCVD"])
+        self.assertEqual(0, source_bot["NUM_IGNORED"])
+
+        for bot_info in other_bots:
+            self.assertEqual(num_bots - 2, bot_info["NUM_SENT"])
+            self.assertEqual(num_bots - 1, bot_info["NUM_RCVD"])
+            self.assertEqual(num_bots - 2, bot_info["NUM_IGNORED"])
 
 
 if __name__ == "__main__":

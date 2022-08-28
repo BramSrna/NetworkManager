@@ -9,15 +9,18 @@ sys.path.append('../..')
 from swarm_bot.src.swarm_bot import SwarmBot  # noqa: E402
 from visualizer.src.visualizer import Visualizer  # noqa: E402
 from swarm_bot.src.swarm_bot_idle_listener_interface import SwarmBotIdleListenerInterface  # noqa: E402
+from swarm_bot.src.propagation_strategy.smart_propagation import SmartPropagation  # noqa: E402
+from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagation  # noqa: E402
 
 
 class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
-    def __init__(self, num_bots, connectivity_percentage, num_messages):
+    def __init__(self, num_bots, connectivity_percentage, num_messages, propagation_strategy):
         SwarmBotIdleListenerInterface.__init__(self)
 
         self.num_bots = num_bots
         self.connectivity_percentage = connectivity_percentage
         self.num_messages = num_messages
+        self.propagation_strategy = propagation_strategy
 
         self.swarm_bots = []
 
@@ -30,6 +33,9 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
             start_snapshot = self._get_state_snapshot()
             self._run_traffic(self.num_messages)
             end_snapshot = self._get_state_snapshot()
+
+            print(start_snapshot)
+            print(end_snapshot)
 
             data = self._compare_snapshots(start_snapshot, end_snapshot)
         except Exception as e:
@@ -44,6 +50,8 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
         if visualize_swarm:
             self._visualize_swarm()
+
+        print(data)
 
         return self.swarm_bots, data
 
@@ -67,7 +75,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
         self.swarm_bots = []
 
         for _ in range(self.num_bots):
-            new_bot = SwarmBot()
+            new_bot = SwarmBot(self.propagation_strategy)
             self.swarm_bots.append(new_bot)
             new_bot.add_idle_listener(self)
 
@@ -82,13 +90,16 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
                 self.swarm_bots[i].connect_to_swarm_bot(self.swarm_bots[rand_bot_ind])
                 connected.append(rand_bot_ind)
                 num_connections -= 1
+        self.wait_for_idle_swarm(60)
 
     def _run_traffic(self, num_messages):
         bot_ind = 0
         while num_messages > 0:
             bot = self.swarm_bots[bot_ind]
-            bot.send_basic_propagation_message()
-            self.wait_for_idle_swarm()
+            msg_id = bot.send_basic_propagation_message()
+            self.wait_for_idle_swarm(60)
+            for bot in self.swarm_bots:
+                assert(bot.interacted_with_msg_with_id(msg_id))
             bot_ind += 1
             bot_ind %= len(self.swarm_bots)
             num_messages -= 1
@@ -122,7 +133,9 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
 
 if __name__ == "__main__":
-    num_bots = 3
+    num_bots = 7
+    propagation_strategy = NaivePropagation
+    propagation_strategy = SmartPropagation
 
-    comparer = PropagationStrategyComparer(num_bots, 100, 1)
+    comparer = PropagationStrategyComparer(num_bots, 100, 1, propagation_strategy)
     comparer.simulate_prop_strat(True, False)

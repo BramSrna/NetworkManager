@@ -3,6 +3,7 @@ import unittest
 
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
+from swarm_bot.src.message_types import MessageTypes
 
 
 class SimpleSensor(SwarmBotSensor):
@@ -14,6 +15,19 @@ class SimpleSensor(SwarmBotSensor):
 
 
 class TestSwarmMessaging(SwarmBotTestClass):
+    def test_bot_will_receive_sent_message(self):
+        test_swarm_bot_1 = self.create_swarm_bot()
+        test_swarm_bot_2 = self.create_swarm_bot()
+
+        test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
+
+        msg_id = test_swarm_bot_1.create_message(test_swarm_bot_2.get_id(), MessageTypes.SENSOR_VAL, {"SENSOR_ID": 0, "DATA": 17})
+
+        self.wait_for_idle_swarm()
+
+        self.assertTrue(test_swarm_bot_1.sent_msg_with_id(msg_id))
+        self.assertTrue(test_swarm_bot_2.received_msg_with_id(msg_id))
+
     def test_swarm_bot_will_throw_error_when_data_flow_is_defined_with_unknown_bot_no_bots(self):
         test_swarm_bot_1 = self.create_swarm_bot()
 
