@@ -177,13 +177,9 @@ class SwarmBot(MessageChannelUser):
         return self.create_message(None, MessageTypes.BASIC_PROPAGATION_MESSAGE, {})
 
     def received_msg_with_id(self, msg_id):
-        print(msg_id)
-        print(self.rcvd_messages)
         return msg_id in self.rcvd_messages
 
     def sent_msg_with_id(self, msg_id):
-        print(msg_id)
-        print(self.rcvd_messages)
         return msg_id in self.sent_messages
 
     def interacted_with_msg_with_id(self, msg_id):

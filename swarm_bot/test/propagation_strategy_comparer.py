@@ -34,9 +34,6 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
             self._run_traffic(self.num_messages)
             end_snapshot = self._get_state_snapshot()
 
-            print(start_snapshot)
-            print(end_snapshot)
-
             data = self._compare_snapshots(start_snapshot, end_snapshot)
         except Exception as e:
             print(repr(e))
@@ -50,8 +47,6 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
         if visualize_swarm:
             self._visualize_swarm()
-
-        print(data)
 
         return self.swarm_bots, data
 
