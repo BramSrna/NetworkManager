@@ -4,8 +4,6 @@ import unittest
 from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
 from swarm_bot.test.propagation_strategy_comparer import PropagationStrategyComparer
-from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagation
-from swarm_bot.src.propagation_strategy.smart_propagation import SmartPropagation
 
 
 class SimpleSensor(SwarmBotSensor):
@@ -90,7 +88,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         connectivity_percentage = 100
         num_messages = 1
 
-        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, NaivePropagation)
+        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, "NaivePropagation")
         bots, test_output = comparer.simulate_prop_strat(False, False)
 
         self.assertEqual(num_bots, len(test_output.keys()))
@@ -132,7 +130,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         connectivity_percentage = 100
         num_messages = 1
 
-        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, SmartPropagation)
+        comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, "SmartPropagation")
         bots, test_output = comparer.simulate_prop_strat(False, False)
 
         self.assertEqual(num_bots, len(test_output.keys()))

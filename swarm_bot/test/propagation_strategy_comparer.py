@@ -70,7 +70,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
         self.swarm_bots = []
 
         for _ in range(self.num_bots):
-            new_bot = SwarmBot(self.propagation_strategy)
+            new_bot = SwarmBot(additional_config_dict={"propagation_strategy": self.propagation_strategy})
             self.swarm_bots.append(new_bot)
             new_bot.add_idle_listener(self)
 
