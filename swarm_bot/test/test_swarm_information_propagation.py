@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
+from swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
 from swarm_bot.test.propagation_strategy_comparer import PropagationStrategyComparer
 

@@ -6,10 +6,6 @@ from pygame.locals import QUIT
 
 sys.path.append('../..')
 
-from swarm_bot.src.swarm_bot import SwarmBot  # noqa: E402
-from swarm_manager.src.swarm_manager import SwarmManager  # noqa: E402
-from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel  # noqa: E402
-
 
 class Visualizer(object):
     def __init__(self, swarm_bot):
@@ -104,20 +100,3 @@ class Visualizer(object):
         for bot_id, connection_list in swarm_snapshot.items():
             for connection in connection_list:
                 pygame.draw.line(display, self.connection_colour, bot_centres[bot_id]["CENTRE"], bot_centres[connection]["CENTRE"])
-
-
-if __name__ == "__main__":
-    visualizer = Visualizer()
-
-    swarm_manager = SwarmManager(SwarmConnectivityLevel.FULLY_CONNECTED)
-
-    num_bots = 10
-
-    for bot in range(num_bots):
-        new_bot = SwarmBot()
-
-        swarm_manager.add_swarm_bot(new_bot)
-
-    visualizer.set_swarm_manager(swarm_manager)
-
-    visualizer.visualize_swarm()

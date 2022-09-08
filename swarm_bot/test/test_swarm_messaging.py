@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
+from swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
 from swarm_bot.src.message_types import MessageTypes
 

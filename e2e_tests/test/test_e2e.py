@@ -1,10 +1,8 @@
 import logging
 import unittest
 
-from swarm_manager.src.swarm_manager import SwarmManager
-from swarm_manager.src.swarm_connectivity_level import SwarmConnectivityLevel
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
-from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
+from swarm_bot_test_class import SwarmBotTestClass
 
 
 class SimpleSensor(SwarmBotSensor):
@@ -17,13 +15,10 @@ class SimpleSensor(SwarmBotSensor):
 
 class TestE2e(SwarmBotTestClass):
     def test_data_flows_can_be_assigned_to_sensors(self):
-        test_swarm_manager = SwarmManager(SwarmConnectivityLevel.FULLY_CONNECTED)
-
         test_swarm_bot_1 = self.create_swarm_bot()
         test_swarm_bot_2 = self.create_swarm_bot()
 
-        test_swarm_manager.add_swarm_bot(test_swarm_bot_1)
-        test_swarm_manager.add_swarm_bot(test_swarm_bot_2)
+        test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
 
         test_sensor = SimpleSensor()
         test_sensor_id = test_sensor.get_id()

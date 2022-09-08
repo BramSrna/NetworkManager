@@ -4,7 +4,7 @@ import time
 
 from random import randint
 
-from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
+from swarm_bot_test_class import SwarmBotTestClass
 from map_simulator.src.map_creator import create_map, EMPTY_SPACE, WALL
 from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
 from swarm_task.src.swarm_task import SwarmTask
