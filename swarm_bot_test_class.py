@@ -8,12 +8,8 @@ class SwarmBotTestClass(unittest.TestCase, SwarmBotIdleListenerInterface):
     def setUp(self):
         SwarmBotIdleListenerInterface.__init__(self)
         self.test_swarm_bots = []
-        self.test_swarm_managers = []
 
     def tearDown(self):
-        for swarm_manager in self.test_swarm_managers:
-            swarm_manager.teardown()
-
         for bot in self.test_swarm_bots:
             bot.teardown()
 
