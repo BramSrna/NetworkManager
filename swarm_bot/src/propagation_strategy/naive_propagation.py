@@ -7,3 +7,6 @@ class NaivePropagation(PropagationStrategy):
 
     def determine_prop_targets(self, message):
         return self.swarm_bot.get_message_channels().keys()
+
+    def track_message_propagation(self, message):
+        pass

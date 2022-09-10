@@ -21,7 +21,7 @@ class TestSwarmMessaging(SwarmBotTestClass):
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
 
-        msg_id = test_swarm_bot_1.create_message(test_swarm_bot_2.get_id(), MessageTypes.SENSOR_VAL, {"SENSOR_ID": 0, "DATA": 17})
+        msg_id = test_swarm_bot_1.create_directed_message(test_swarm_bot_2.get_id(), MessageTypes.SENSOR_VAL, {"SENSOR_ID": 0, "DATA": 17})
 
         self.wait_for_idle_swarm()
 

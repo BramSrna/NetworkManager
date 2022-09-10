@@ -133,44 +133,35 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, "SmartPropagation")
         bots, test_output = comparer.simulate_prop_strat(False, False)
 
+        print(test_output)
+
         self.assertEqual(num_bots, len(test_output.keys()))
 
-        source_bot = None
-        other_bots = []
+        total_sent_msgs = 0
+        total_rcvd_msgs = 0
+        total_ignored_msgs = 0
 
         for _, bot_info in test_output.items():
-            total_sent_msgs = 0
-            total_rcvd_msgs = 0
-
             for _, msg_info in bot_info["SENT_MSGS"].items():
                 total_sent_msgs += msg_info[1]
             for _, msg_info in bot_info["RCVD_MSGS"].items():
                 total_rcvd_msgs += msg_info[1]
 
-            num_ignored = bot_info["NUM_IGNORED_MSGS"]
+            total_ignored_msgs += bot_info["NUM_IGNORED_MSGS"]
 
-            info = {
-                "NUM_SENT": total_sent_msgs,
-                "NUM_RCVD": total_rcvd_msgs,
-                "NUM_IGNORED": num_ignored
-            }
+        # Source bot should send a message to every bot except itself
+        # Receiver bots should send a message to every bot except itself and the bot it received the message from
+        expected_total_sent_msgs = (num_bots - 1) + (num_bots - 1) * (num_bots - 2)
 
-            if (total_sent_msgs == num_bots - 1) and (source_bot is None):
-                source_bot = info
-            else:
-                other_bots.append(info)
+        expected_total_rcvd_msgs = expected_total_sent_msgs
 
-        self.assertTrue(isinstance(source_bot, dict))
-        self.assertEqual(num_bots - 1, len(other_bots))
+        # Source bot should ignore all msgs
+        # Receiver bots should ignore all messages except one
+        expected_total_ignored_msgs = expected_total_rcvd_msgs - num_bots + 1
 
-        self.assertEqual(num_bots - 1, source_bot["NUM_SENT"])
-        self.assertEqual(0, source_bot["NUM_RCVD"])
-        self.assertEqual(0, source_bot["NUM_IGNORED"])
-
-        for bot_info in other_bots:
-            self.assertEqual(num_bots - 2, bot_info["NUM_SENT"])
-            self.assertEqual(num_bots - 1, bot_info["NUM_RCVD"])
-            self.assertEqual(num_bots - 2, bot_info["NUM_IGNORED"])
+        self.assertEqual(expected_total_ignored_msgs, total_ignored_msgs)
+        self.assertEqual(expected_total_rcvd_msgs, total_rcvd_msgs)
+        self.assertEqual(expected_total_sent_msgs, total_sent_msgs)
 
 
 if __name__ == "__main__":

@@ -2,13 +2,14 @@ from swarm_bot.src.message_types import MessageTypes
 
 
 class MessageWrapper(object):
-    def __init__(self, msg_id, sender_id: int, target_bot_id: int, message_type: MessageTypes, message_payload: dict):
+    def __init__(self, msg_id, sender_id: int, target_bot_id: int, message_type: MessageTypes, message_payload: dict, propagation_flag):
         self.id = msg_id
 
         self.sender_id = sender_id
         self.target_bot_id = target_bot_id
         self.message_type = message_type
         self.message_payload = message_payload
+        self.propagation_flag = propagation_flag
 
     def get_target_bot_id(self):
         return self.target_bot_id
@@ -30,3 +31,6 @@ class MessageWrapper(object):
 
     def set_target_id(self, new_target_bot_id):
         self.target_bot_id = new_target_bot_id
+
+    def get_propagation_flag(self):
+        return self.propagation_flag
