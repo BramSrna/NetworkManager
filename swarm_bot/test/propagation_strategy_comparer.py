@@ -88,6 +88,9 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
         self.wait_for_idle_swarm(60)
 
     def _run_traffic(self, num_messages):
+        for bot in self.swarm_bots:
+            bot.set_periodically_sync_msgs(False)
+
         bot_ind = 0
         while num_messages > 0:
             bot = self.swarm_bots[bot_ind]
@@ -98,6 +101,9 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
             bot_ind += 1
             bot_ind %= len(self.swarm_bots)
             num_messages -= 1
+
+        for bot in self.swarm_bots:
+            bot.set_periodically_sync_msgs(True)
 
     def _get_state_snapshot(self):
         info_dict = {}

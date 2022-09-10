@@ -2,7 +2,7 @@ import logging
 import unittest
 import time
 
-from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
+from swarm_bot_test_class import SwarmBotTestClass
 from swarm_task.src.swarm_task import SwarmTask
 
 

@@ -48,6 +48,8 @@ class SwarmBot(MessageChannelUser):
 
         self.num_processes = 0
 
+        self.periodically_sync_msgs = True
+
         self.msg_handler_dict = {
             str(MessageTypes.SENSOR_VAL): self.handle_sensor_val_message,
             str(MessageTypes.MSG_RESPONSE): self.handle_msg_response_message,
@@ -96,6 +98,9 @@ class SwarmBot(MessageChannelUser):
         self.msg_outbox_has_values.set()
         self.task_queue_has_values.set()
 
+    def set_periodically_sync_msgs(self, new_state):
+        self.periodically_sync_msgs = new_state
+
     def get_id(self) -> int:
         return self.id
 
@@ -128,23 +133,45 @@ class SwarmBot(MessageChannelUser):
         self.msg_inbox.append(message)
         self.msg_inbox_has_values.set()
 
-    def create_message(self, target_bot_id: int, message_type: MessageTypes, message_payload: dict, message_id=None) -> None:
-        targets = []
-        if target_bot_id is None:
-            targets = self.propagation_strategy.determine_prop_targets(None)
-        elif target_bot_id in self.msg_channels:
-            targets.append(target_bot_id)
-        else:
+    def create_propagation_message_from_message(self, message) -> None:
+        targets = self.propagation_strategy.determine_prop_targets(message)
+
+        message_id = message.get_id()
+        message_type = message.get_message_type()
+        message_payload = message.get_message_payload()
+
+        for target in targets:
+            new_msg = self.message_wrapper_type(message_id, self.get_id(), target, message_type, message_payload, True)
+
+            self.msg_outbox.append({"MESSAGE": new_msg, "TARGET_ID": target})
+            self.msg_outbox_has_values.set()
+
+        return message_id
+
+    def create_propagation_message(self, message_type: MessageTypes, message_payload: dict) -> None:
+        targets = self.propagation_strategy.determine_prop_targets(None)
+
+        message_id = randint(0, 1000000)
+
+        for target in targets:
+            new_msg = self.message_wrapper_type(message_id, self.get_id(), target, message_type, message_payload, True)
+
+            self.msg_outbox.append({"MESSAGE": new_msg, "TARGET_ID": target})
+            self.msg_outbox_has_values.set()
+
+        return message_id
+
+    def create_directed_message(self, target_bot_id: int, message_type: MessageTypes, message_payload: dict, message_id=None) -> None:
+        if target_bot_id not in self.msg_channels:
             raise Exception("ERROR: Tried to create message for unknown bot ID: " + str(target_bot_id))
 
         if message_id is None:
             message_id = randint(0, 1000000)
 
-        for target in targets:
-            new_msg = self.message_wrapper_type(message_id, self.get_id(), target_bot_id, message_type, message_payload)
+        new_msg = self.message_wrapper_type(message_id, self.get_id(), target_bot_id, message_type, message_payload, False)
 
-            self.msg_outbox.append({"MESSAGE": new_msg, "TARGET_ID": target})
-            self.msg_outbox_has_values.set()
+        self.msg_outbox.append({"MESSAGE": new_msg, "TARGET_ID": target_bot_id})
+        self.msg_outbox_has_values.set()
 
         return message_id
 
@@ -160,7 +187,7 @@ class SwarmBot(MessageChannelUser):
                 if id == self.id:
                     self.write_to_memory(self.get_id(), sensor_id, read_val)
                 else:
-                    self.create_message(id, MessageTypes.SENSOR_VAL, {"SENSOR_ID": sensor_id, "DATA": read_val})
+                    self.create_directed_message(id, MessageTypes.SENSOR_VAL, {"SENSOR_ID": sensor_id, "DATA": read_val})
 
         return read_val
 
@@ -183,7 +210,7 @@ class SwarmBot(MessageChannelUser):
     def receive_task(self, new_task):
         self.task_queue.append({"TASK": new_task})
         if len(self.task_queue) > 1:
-            self.create_message(None, MessageTypes.NEW_TASK, {"TASK_ID": new_task.get_id(), "TASK_HOLDER": self.get_id()})
+            self.create_propagation_message(MessageTypes.NEW_TASK, {"TASK_ID": new_task.get_id(), "TASK_HOLDER": self.get_id()})
         self.task_queue_has_values.set()
 
     def get_task_queue(self):
@@ -204,7 +231,7 @@ class SwarmBot(MessageChannelUser):
         return self.msg_channels
 
     def send_basic_propagation_message(self):
-        return self.create_message(None, MessageTypes.BASIC_PROPAGATION_MESSAGE, {})
+        return self.create_propagation_message(MessageTypes.BASIC_PROPAGATION_MESSAGE, {})
 
     def received_msg_with_id(self, msg_id):
         return msg_id in self.rcvd_messages
@@ -218,13 +245,13 @@ class SwarmBot(MessageChannelUser):
     def sync_with_bot(self, bot_id):
         msg_list = []
         for msg_id, msg_info in self.sent_messages.items():
-            if msg_info["SENT_MSG"].get_target_bot_id() is None:
+            if msg_info["SENT_MSG"].get_propagation_flag():
                 msg_list.append(msg_id)
         for msg_id, msg_info in self.rcvd_messages.items():
-            if msg_info["MSG"].get_target_bot_id() is None:
+            if msg_info["MSG"].get_propagation_flag():
                 msg_list.append(msg_id)
 
-        self.create_message(bot_id, MessageTypes.SYNC_MESSAGES, {"MSG_LIST": msg_list})
+        self.create_directed_message(bot_id, MessageTypes.SYNC_MESSAGES, {"MSG_LIST": msg_list})
 
     def get_sent_messages(self):
         sent_msgs = {}
@@ -283,7 +310,7 @@ class SwarmBot(MessageChannelUser):
                     curr_msg = self.sent_messages[msg_id]["SENT_MSG"]
                 else:
                     curr_msg = self.rcvd_messages[msg_id]["MSG"]
-                self.create_message(message.get_sender_id(), curr_msg.get_message_type(), curr_msg.get_message_payload(), message_id=msg_id)
+                self.create_directed_message(message.get_sender_id(), curr_msg.get_message_type(), curr_msg.get_message_payload(), message_id=msg_id)
         elif orig_msg_type == MessageTypes.REQUEST_TASK_TRANSFER:
             self.receive_task(message.get_message_payload()["TASK"])
         else:
@@ -321,7 +348,7 @@ class SwarmBot(MessageChannelUser):
             self.task_queue.pop(i)
             if len(self.task_queue) == 0:
                 self.task_queue_has_values.clear()
-        self.create_message(message.get_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": msg_id, "TASK": task})
+        self.create_directed_message(message.get_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": msg_id, "TASK": task})
 
     def handle_basic_propagation_message_message(self, message):
         pass
@@ -340,7 +367,7 @@ class SwarmBot(MessageChannelUser):
             if (curr_msg_id not in rcvd_msg_ids) and (curr_msg_id not in sent_msg_ids):
                 missing_msgs.append(curr_msg_id)
 
-        self.create_message(message.get_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": msg_id, "MSG_LIST": missing_msgs})
+        self.create_directed_message(message.get_sender_id(), MessageTypes.MSG_RESPONSE, {"ORIG_MSG_ID": msg_id, "MSG_LIST": missing_msgs})
 
     def task_executor_loop(self):
         while (not self.run_bot.is_set()):
@@ -353,7 +380,7 @@ class SwarmBot(MessageChannelUser):
                     if "TASK" in next_task_info:
                         next_task = next_task_info["TASK"]
                     else:
-                        self.create_message(next_task_info["HOLDER_ID"], MessageTypes.REQUEST_TASK_TRANSFER, {"TASK_ID": next_task_info["TASK_ID"]})
+                        self.create_directed_message(next_task_info["HOLDER_ID"], MessageTypes.REQUEST_TASK_TRANSFER, {"TASK_ID": next_task_info["TASK_ID"]})
                 if next_task is not None:
                     self.assigned_task = next_task
 
@@ -381,8 +408,6 @@ class SwarmBot(MessageChannelUser):
                 message = msg_to_send["MESSAGE"]
 
                 targets = [msg_to_send["TARGET_ID"]]
-                if targets is None:
-                    targets = list(self.msg_channels.keys())
 
                 for target_bot_id in targets:
                     if target_bot_id not in self.msg_channels:
@@ -419,6 +444,7 @@ class SwarmBot(MessageChannelUser):
                 msg_id = message.get_id()
                 message_type = str(message.get_message_type())
                 message_payload = message.get_message_payload()
+                should_propagate = message.get_propagation_flag()
 
                 print("Received message. receiver bot ID: {}, target bot ID: {}, message ID {}, message type {}, payload: {}\n\n".format(self.get_id(), target_id, msg_id, message_type, message_payload))
 
@@ -431,7 +457,7 @@ class SwarmBot(MessageChannelUser):
                         self.rcvd_messages[msg_id] = {"MSG": message, "NUM_TIMES_RCVD": 0}
                     self.rcvd_messages[msg_id]["NUM_TIMES_RCVD"] += 1
                     self.num_ignored_msgs += 1
-                    if target_id is None:
+                    if should_propagate:
                         self.propagation_strategy.track_message_propagation(message)
                 else:
                     self.rcvd_messages[msg_id] = {"MSG": message, "NUM_TIMES_RCVD": 1}
@@ -441,15 +467,14 @@ class SwarmBot(MessageChannelUser):
                     else:
                         raise Exception("ERROR: Unknown message type: " + str(message_type))
 
-                    if target_id is None:
-                        targets = self.propagation_strategy.determine_prop_targets(message)
-                        for target_bot_id in targets:
-                            self.create_message(target_bot_id, message_type, message_payload, message_id=msg_id)
+                    if should_propagate:
+                        self.create_propagation_message_from_message(message)
 
-                    if (len(self.rcvd_messages.keys()) > 0) and (len(self.rcvd_messages.keys()) % self.sync_message_threshold == 0):
-                        bot_ids = list(self.msg_channels.keys())
-                        for bot_id in bot_ids:
-                            self.sync_with_bot(bot_id)
+                    if self.periodically_sync_msgs:
+                        if (len(self.rcvd_messages.keys()) > 0) and (len(self.rcvd_messages.keys()) % self.sync_message_threshold == 0):
+                            bot_ids = list(self.msg_channels.keys())
+                            for bot_id in bot_ids:
+                                self.sync_with_bot(bot_id)
 
                 self.notify_process_state(False)
 
