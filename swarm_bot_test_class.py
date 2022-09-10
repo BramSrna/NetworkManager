@@ -13,8 +13,8 @@ class SwarmBotTestClass(unittest.TestCase, SwarmBotIdleListenerInterface):
         for bot in self.test_swarm_bots:
             bot.teardown()
 
-    def create_swarm_bot(self):
-        new_bot = SwarmBot()
+    def create_swarm_bot(self, additional_config_dict={}):
+        new_bot = SwarmBot(additional_config_dict=additional_config_dict)
         self.test_swarm_bots.append(new_bot)
         new_bot.add_idle_listener(self)
         return new_bot

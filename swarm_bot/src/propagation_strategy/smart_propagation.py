@@ -29,7 +29,6 @@ class SmartPropagation(PropagationStrategy):
             self.add_bot_to_tracker_if_not_present(bot_id)
 
         sorted_targets = sorted(targets, key=lambda bot_id: self.avg_receive_time_tracker[bot_id]["CURR_AVG"], reverse=True)
-        print("SORTED TARGETS: {}".format(str(sorted_targets)))
         return sorted_targets
 
     def track_message_propagation(self, message):

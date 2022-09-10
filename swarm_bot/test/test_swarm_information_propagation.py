@@ -16,9 +16,9 @@ class SimpleSensor(SwarmBotSensor):
 
 class TestSwarmInformationPropagation(SwarmBotTestClass):
     def test_all_bots_in_the_swarm_receive_a_sent_message_when_naive_propagation_is_used_in_double_layer_network(self):
-        test_swarm_bot_1 = self.create_swarm_bot()
-        test_swarm_bot_2 = self.create_swarm_bot()
-        test_swarm_bot_3 = self.create_swarm_bot()
+        test_swarm_bot_1 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_2 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_3 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
@@ -31,13 +31,13 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         self.assertTrue(test_swarm_bot_3.received_msg_with_id(msg_id))
 
     def test_all_bots_in_the_swarm_receive_a_sent_message_when_naive_propagation_is_used_in_multi_layer_network(self):
-        test_swarm_bot_1 = self.create_swarm_bot()
-        test_swarm_bot_2 = self.create_swarm_bot()
-        test_swarm_bot_3 = self.create_swarm_bot()
-        test_swarm_bot_4 = self.create_swarm_bot()
-        test_swarm_bot_5 = self.create_swarm_bot()
-        test_swarm_bot_6 = self.create_swarm_bot()
-        test_swarm_bot_7 = self.create_swarm_bot()
+        test_swarm_bot_1 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_2 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_3 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_4 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_5 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_6 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_7 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
@@ -62,11 +62,11 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         self.assertTrue(test_swarm_bot_7.received_msg_with_id(msg_id))
 
     def test_all_bots_in_the_swarm_receive_a_sent_message_when_naive_propagation_is_used_in_circular_network(self):
-        test_swarm_bot_1 = self.create_swarm_bot()
-        test_swarm_bot_2 = self.create_swarm_bot()
-        test_swarm_bot_3 = self.create_swarm_bot()
-        test_swarm_bot_4 = self.create_swarm_bot()
-        test_swarm_bot_5 = self.create_swarm_bot()
+        test_swarm_bot_1 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_2 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_3 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_4 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
+        test_swarm_bot_5 = self.create_swarm_bot(additional_config_dict={"propagation_strategy": "NaivePropagation"})
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_3)
@@ -132,8 +132,6 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
 
         comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, "SmartPropagation")
         bots, test_output = comparer.simulate_prop_strat(False, False)
-
-        print(test_output)
 
         self.assertEqual(num_bots, len(test_output.keys()))
 
