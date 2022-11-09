@@ -7,7 +7,6 @@ import sys
 sys.path.append('../..')
 
 from swarm_bot.src.swarm_bot import SwarmBot  # noqa: E402
-from visualizer.src.visualizer import Visualizer  # noqa: E402
 from swarm_bot.src.swarm_bot_idle_listener_interface import SwarmBotIdleListenerInterface  # noqa: E402
 from swarm_bot.src.propagation_strategy.smart_propagation import SmartPropagation  # noqa: E402
 from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagation  # noqa: E402
@@ -24,7 +23,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
         self.swarm_bots = []
 
-    def simulate_prop_strat(self, display_snapshot_info, visualize_swarm):
+    def simulate_prop_strat(self, display_snapshot_info):
         data = None
 
         try:
@@ -45,9 +44,6 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
         if display_snapshot_info:
             self._display_snapshot_info(data)
 
-        if visualize_swarm:
-            self._visualize_swarm()
-
         return self.swarm_bots, data
 
     def _display_snapshot_info(self, snapshot):
@@ -61,10 +57,6 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
                         print("\t\t{}: {}".format(sub_key, sub_val))
                 else:
                     print("\t{}: {}".format(key, value))
-
-    def _visualize_swarm(self):
-        visualizer = Visualizer(self.swarm_bots[0])
-        visualizer.visualize_swarm()
 
     def _initialize_swarm(self):
         self.swarm_bots = []
@@ -88,22 +80,17 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
         self.wait_for_idle_swarm(60)
 
     def _run_traffic(self, num_messages):
-        for bot in self.swarm_bots:
-            bot.set_periodically_sync_msgs(False)
 
         bot_ind = 0
         while num_messages > 0:
             bot = self.swarm_bots[bot_ind]
-            msg_id = bot.send_basic_propagation_message()
+            msg_id = bot.create_propagation_message("TEST", {})
             self.wait_for_idle_swarm(60)
             for bot in self.swarm_bots:
                 assert(bot.interacted_with_msg_with_id(msg_id))
             bot_ind += 1
             bot_ind %= len(self.swarm_bots)
             num_messages -= 1
-
-        for bot in self.swarm_bots:
-            bot.set_periodically_sync_msgs(True)
 
     def _get_state_snapshot(self):
         info_dict = {}
