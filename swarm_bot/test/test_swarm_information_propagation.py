@@ -1,17 +1,8 @@
 import logging
 import unittest
 
-from swarm_bot_test_class import SwarmBotTestClass
-from swarm_bot.src.swarm_bot_sensor import SwarmBotSensor
+from swarm_bot.test.swarm_bot_test_class import SwarmBotTestClass
 from swarm_bot.test.propagation_strategy_comparer import PropagationStrategyComparer
-
-
-class SimpleSensor(SwarmBotSensor):
-    def __init__(self):
-        super().__init__()
-
-    def read_from_sensor(self, additional_params):
-        return True
 
 
 class TestSwarmInformationPropagation(SwarmBotTestClass):
@@ -23,7 +14,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
 
-        msg_id = test_swarm_bot_1.send_basic_propagation_message()
+        msg_id = test_swarm_bot_1.create_propagation_message("TEST", {})
 
         self.wait_for_idle_swarm()
 
@@ -48,7 +39,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_6)
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_7)
 
-        msg_id = test_swarm_bot_1.send_basic_propagation_message()
+        msg_id = test_swarm_bot_1.create_propagation_message("TEST", {})
 
         self.wait_for_idle_swarm()
 
@@ -74,7 +65,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_4.connect_to_swarm_bot(test_swarm_bot_5)
         test_swarm_bot_5.connect_to_swarm_bot(test_swarm_bot_1)
 
-        msg_id = test_swarm_bot_1.send_basic_propagation_message()
+        msg_id = test_swarm_bot_1.create_propagation_message("TEST", {})
 
         self.wait_for_idle_swarm()
 
@@ -89,7 +80,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         num_messages = 1
 
         comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, "NaivePropagation")
-        bots, test_output = comparer.simulate_prop_strat(False, False)
+        bots, test_output = comparer.simulate_prop_strat(False)
 
         self.assertEqual(num_bots, len(test_output.keys()))
 
@@ -131,7 +122,7 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         num_messages = 1
 
         comparer = PropagationStrategyComparer(num_bots, connectivity_percentage, num_messages, "SmartPropagation")
-        bots, test_output = comparer.simulate_prop_strat(False, False)
+        bots, test_output = comparer.simulate_prop_strat(False)
 
         self.assertEqual(num_bots, len(test_output.keys()))
 
