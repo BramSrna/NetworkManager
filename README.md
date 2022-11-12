@@ -7,7 +7,7 @@
 
 
 ## Project Scope
-Ability to define networks
+- Ability to define networks
 - Define objects as network nodes
-- Facilitate intranetwork messaging
+- Facilitate intra-network messaging
 - Allow for network logging
