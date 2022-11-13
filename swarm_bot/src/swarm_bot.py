@@ -90,7 +90,10 @@ class SwarmBot(MessageChannelUser):
         bot_id = new_swarm_bot.get_id()
         if bot_id not in self.msg_channels:
             self.msg_channels[bot_id] = self.message_channel_type(self, new_swarm_bot)
-            new_swarm_bot.connect_to_swarm_bot(self)
+
+    def disconnect_from_swarm_bot(self, id_to_disconnect):
+        if id_to_disconnect in self.msg_channels.keys():
+            self.msg_channels.pop(id_to_disconnect)
 
     def is_connected_to(self, swarm_bot_id: str) -> bool:
         return swarm_bot_id in self.msg_channels

@@ -10,6 +10,7 @@ class TestSwarmMessaging(SwarmBotTestClass):
         test_swarm_bot_2 = self.create_swarm_bot()
 
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
+        test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_1)
 
         msg_id = test_swarm_bot_1.create_directed_message(test_swarm_bot_2.get_id(), "TEST", {})
 
