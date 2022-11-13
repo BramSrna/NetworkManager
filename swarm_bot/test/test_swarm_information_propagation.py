@@ -14,6 +14,9 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
 
+        test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_1)
+        test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_1)
+
         msg_id = test_swarm_bot_1.create_propagation_message("TEST", {})
 
         self.wait_for_idle_swarm()
@@ -33,11 +36,20 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_2)
         test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_3)
 
+        test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_1)
+        test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_1)
+
         test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_4)
         test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_5)
 
+        test_swarm_bot_4.connect_to_swarm_bot(test_swarm_bot_2)
+        test_swarm_bot_5.connect_to_swarm_bot(test_swarm_bot_2)
+
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_6)
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_7)
+
+        test_swarm_bot_6.connect_to_swarm_bot(test_swarm_bot_3)
+        test_swarm_bot_7.connect_to_swarm_bot(test_swarm_bot_3)
 
         msg_id = test_swarm_bot_1.create_propagation_message("TEST", {})
 
@@ -64,6 +76,12 @@ class TestSwarmInformationPropagation(SwarmBotTestClass):
         test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_4)
         test_swarm_bot_4.connect_to_swarm_bot(test_swarm_bot_5)
         test_swarm_bot_5.connect_to_swarm_bot(test_swarm_bot_1)
+
+        test_swarm_bot_2.connect_to_swarm_bot(test_swarm_bot_1)
+        test_swarm_bot_3.connect_to_swarm_bot(test_swarm_bot_2)
+        test_swarm_bot_4.connect_to_swarm_bot(test_swarm_bot_3)
+        test_swarm_bot_5.connect_to_swarm_bot(test_swarm_bot_4)
+        test_swarm_bot_1.connect_to_swarm_bot(test_swarm_bot_5)
 
         msg_id = test_swarm_bot_1.create_propagation_message("TEST", {})
 
