@@ -2,6 +2,7 @@ import threading
 import time
 import os
 import yaml
+import logging
 
 from random import randint
 from swarm_bot.src.message_channel.local_message_channel import LocalMessageChannel
@@ -18,6 +19,8 @@ from swarm_bot.src.propagation_strategy.smart_propagation import SmartPropagatio
 class SwarmBot(MessageChannelUser):
     def __init__(self, additional_config_path=None, additional_config_dict=None):
         self.id = id(self)
+
+        self.logger = logging.getLogger('SwarmBot')
 
         self.msg_channels = {}
 
@@ -179,7 +182,7 @@ class SwarmBot(MessageChannelUser):
         return self.num_processes == 0
 
     def notify_process_state(self, process_running):
-        print("Notify process state for bot {}. State: {}".format(self.get_id(), process_running))
+        self.logger.debug("Notify process state for bot {}. State: {}".format(self.get_id(), process_running))
 
         curr_state = self.is_idle()
 
@@ -228,7 +231,7 @@ class SwarmBot(MessageChannelUser):
                 self.sent_messages[msg_id]["NUM_TIMES_SENT"] += 1
 
                 for bot_id in targets:
-                    print("Sent message. Sender bot ID: {}, target bot ID: {}, message ID {}, message type: {}, sender message list {}\n\n".format(self.get_id(), target_bot_id, msg_id, message.get_message_type(), self.sent_messages))
+                    self.logger.debug("Sent message. Sender bot ID: {}, target bot ID: {}, message ID {}, message type: {}, sender message list {}\n\n".format(self.get_id(), target_bot_id, msg_id, message.get_message_type(), self.sent_messages))
                     self.msg_channels[bot_id].send_message(message)
 
                 self.notify_process_state(False)
@@ -250,7 +253,7 @@ class SwarmBot(MessageChannelUser):
                 message_payload = message.get_message_payload()
                 should_propagate = message.get_propagation_flag()
 
-                print("Received message. receiver bot ID: {}, target bot ID: {}, message ID {}, message type {}, payload: {}\n\n".format(self.get_id(), target_id, msg_id, message_type, message_payload))
+                self.logger.debug("Received message. receiver bot ID: {}, target bot ID: {}, message ID {}, message type {}, payload: {}\n\n".format(self.get_id(), target_id, msg_id, message_type, message_payload))
 
                 sender_id = message.get_sender_id()
                 if (sender_id is not None) and (sender_id != self.get_id()) and (sender_id not in self.msg_channels):
@@ -269,7 +272,7 @@ class SwarmBot(MessageChannelUser):
                     if message_type in self.msg_handler_dict:
                         self.msg_handler_dict[message_type](message)
                     else:
-                        print("Warning: Received message type with no assigned handler: " + str(message_type))
+                        self.logger.warning("Warning: Received message type with no assigned handler: " + str(message_type))
 
                     if should_propagate:
                         self.create_propagation_message(message_type, message_payload, message_id=msg_id, msg_ref=message)

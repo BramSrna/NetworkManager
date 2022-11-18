@@ -1,4 +1,5 @@
 import traceback
+import logging
 
 from random import randint
 
@@ -15,6 +16,8 @@ from swarm_bot.src.propagation_strategy.naive_propagation import NaivePropagatio
 class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
     def __init__(self, num_bots, connectivity_percentage, num_messages, propagation_strategy):
         SwarmBotIdleListenerInterface.__init__(self)
+
+        self.logger = logging.getLogger('SwarmBot')
 
         self.num_bots = num_bots
         self.connectivity_percentage = connectivity_percentage
@@ -35,8 +38,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
             data = self._compare_snapshots(start_snapshot, end_snapshot)
         except Exception as e:
-            print(repr(e))
-            print(traceback.format_exc())
+            self.logger.exception(traceback.format_exc())
 
         for bot in self.swarm_bots:
             bot.teardown()
@@ -48,15 +50,15 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
 
     def _display_snapshot_info(self, snapshot):
         for bot_id, bot_info in snapshot.items():
-            print("BOT_ID: {}".format(bot_id))
+            self.logger.info("BOT_ID: {}".format(bot_id))
             for key in bot_info.keys():
                 value = bot_info[key]
                 if isinstance(value, dict):
-                    print("\t{}".format(key))
+                    self.logger.info("\t{}".format(key))
                     for sub_key, sub_val in value.items():
-                        print("\t\t{}: {}".format(sub_key, sub_val))
+                        self.logger.info("\t\t{}: {}".format(sub_key, sub_val))
                 else:
-                    print("\t{}: {}".format(key, value))
+                    self.logger.info("\t{}: {}".format(key, value))
 
     def _initialize_swarm(self):
         self.swarm_bots = []
@@ -73,7 +75,7 @@ class PropagationStrategyComparer(SwarmBotIdleListenerInterface):
                 rand_bot_ind = i
                 while rand_bot_ind in connected:
                     rand_bot_ind = randint(0, self.num_bots - 1)
-                print("Connecting {} to {}".format(self.swarm_bots[i].get_id(), self.swarm_bots[rand_bot_ind].get_id()))
+                self.logger.debug("Connecting {} to {}".format(self.swarm_bots[i].get_id(), self.swarm_bots[rand_bot_ind].get_id()))
                 self.swarm_bots[i].connect_to_swarm_bot(self.swarm_bots[rand_bot_ind])
                 connected.append(rand_bot_ind)
                 num_connections -= 1
