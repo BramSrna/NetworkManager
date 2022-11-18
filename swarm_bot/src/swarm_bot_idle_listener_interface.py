@@ -1,16 +1,18 @@
 import time
+import logging
 
 
 class SwarmBotIdleListenerInterface(object):
     def __init__(self):
         self.num_busy_bots = 0
+        self.logger = logging.getLogger('SwarmBot')
 
     def notify_idle_state(self, new_state):
         if new_state:
             self.num_busy_bots -= 1
         else:
             self.num_busy_bots += 1
-        print("Num busy bots: {}".format(self.num_busy_bots))
+        self.logger.debug("Num busy bots: {}".format(self.num_busy_bots))
 
     def swarm_is_idle(self):
         return self.num_busy_bots == 0
