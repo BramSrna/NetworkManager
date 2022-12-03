@@ -1,6 +1,6 @@
-from network_node.src.message_channel.message_channel import MessageChannel
-from network_node.src.message_wrapper.message_wrapper import MessageWrapper
-from network_node.src.message_channel.message_channel_user import MessageChannelUser
+from network_manager.network_node.message_channel.message_channel import MessageChannel
+from network_manager.network_node.message_wrapper.message_wrapper import MessageWrapper
+from network_manager.network_node.message_channel.message_channel_user import MessageChannelUser
 
 """
 LocalMessageChannel

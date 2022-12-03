@@ -1,8 +1,8 @@
 import logging
 import unittest
 
-from network_node.test.network_node_test_class import NetworkNodeTestClass
-from network_node.test.propagation_strategy_comparer import PropagationStrategyComparer
+from test.network_node_test_class import NetworkNodeTestClass
+from test.propagation_strategy_comparer import PropagationStrategyComparer
 
 
 class TestNetworkInformationPropagation(NetworkNodeTestClass):

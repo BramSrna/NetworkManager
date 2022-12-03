@@ -1,9 +1,9 @@
 import logging
 import unittest
 
-from network_node.src.network_node import NetworkNode
-from network_manager.src.network_manager import NetworkManager
-from network_manager.src.network_connectivity_level import NetworkConnectivityLevel
+from network_manager.network_node.network_node import NetworkNode
+from network_manager.network_manager import NetworkManager
+from network_manager.network_connectivity_level import NetworkConnectivityLevel
 
 
 class TestNetworkManager(unittest.TestCase):

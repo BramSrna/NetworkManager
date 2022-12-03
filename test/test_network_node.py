@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from network_node.test.network_node_test_class import NetworkNodeTestClass
+from test.network_node_test_class import NetworkNodeTestClass
 
 
 class TestNetworkNode(NetworkNodeTestClass):

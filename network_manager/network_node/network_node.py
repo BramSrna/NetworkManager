@@ -5,15 +5,15 @@ import yaml
 import logging
 
 from random import randint
-from network_node.src.message_channel.local_message_channel import LocalMessageChannel
+from network_manager.network_node.message_channel.local_message_channel import LocalMessageChannel
 
-from network_node.src.message_channel.message_channel_user import MessageChannelUser
+from network_manager.network_node.message_channel.message_channel_user import MessageChannelUser
 
-from network_node.src.message_wrapper.local_message_wrapper import LocalMessageWrapper
-from network_node.src.message_wrapper.message_wrapper import MessageWrapper
-from network_node.src.propagation_strategy.naive_propagation import NaivePropagation
-from network_node.src.propagation_strategy.smart_propagation import SmartPropagation
-from network_node.src.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface
+from network_manager.network_node.message_wrapper.local_message_wrapper import LocalMessageWrapper
+from network_manager.network_node.message_wrapper.message_wrapper import MessageWrapper
+from network_manager.network_node.propagation_strategy.naive_propagation import NaivePropagation
+from network_manager.network_node.propagation_strategy.smart_propagation import SmartPropagation
+from network_manager.network_node.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface
 
 
 """

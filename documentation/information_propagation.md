@@ -17,7 +17,7 @@ The most starightforward form of message propagation is naive propagation. The s
 The benefit to this method is that it is very resilient to connection issues. If a connection is slow or broken, the message will be propagated using a different path if available. Additionally, messages will naturally follow the shortest path to each node. The downside to this method is that there will be a lot of repeated message sending.
 
 #### Implementation
-The Naive Propagation implementation can be seen here: network_node\src\propagation_strategy\naive_propagation.py
+The Naive Propagation implementation can be seen here: NetworkManager\network_manager\network_node\propagation_strategy\naive_propagation.py
 
 #### Expected Messaging Count
 Where N is the number of nodes a node is connected to:
@@ -48,7 +48,7 @@ The strategy used for propagation is as follows:
         - Calculate the new average time for the node
 
 #### Implementation
-The Smart Propagation implementation can be seen here: network_node\src\propagation_strategy\smart_propagation.py
+The Smart Propagation implementation can be seen here: NetworkManager\network_manager\network_node\propagation_strategy\smart_propagation.py
 
 #### Expected Messaging Count
 Where N is the number of nodes a node is connected to:
