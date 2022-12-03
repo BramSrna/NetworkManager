@@ -14,7 +14,10 @@ python3 setup.py develop
 * Test coverage is great. Please ensure tests are non-brittle.
 
 ## Example
-from NetworkManager.network_manager import NetworkManager
+```python
+from network_manager.network_manager import NetworkManager
+from network_manager.network_connectivity_level import NetworkConnectivityLevel
+from network_manager.network_node.network_node import NetworkNode
 
 manager = NetworkManager(NetworkConnectivityLevel.FULLY_CONNECTED)
 
@@ -26,11 +29,22 @@ manager.add_network_node(node_1)
 manager.add_network_node(node_2)
 manager.add_network_node(node_3)
 
-node_1.create_propagation_message("MESSAGE_TYPE", {"PAYLOAD_KEY": "PAYLOAD_VALUE"})
+def simple_handler(swarm_bot, message):
+    print("HELLO WORLD FROM {}! Received payload: {}".format(swarm_bot.get_id(), message.get_message_payload()))
 
-self.wait_for_idle_network()
+msg_type = "MESSAGE_TYPE"
+
+node_2.assign_msg_handler(msg_type, simple_handler)
+node_3.assign_msg_handler(msg_type, simple_handler)
+
+node_1.create_propagation_message(msg_type, {"PAYLOAD_KEY": "PAYLOAD_VALUE"})
+
+manager.wait_for_idle_network()
+
+manager.teardown()
+```
 
 ## Running tests
 ```bash
-python3 -m pytest
+pytest
 ```
