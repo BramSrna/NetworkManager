@@ -3,9 +3,9 @@ import logging
 
 from random import randint
 
-from network_node.src.propagation_strategy.propagation_strategy import PropagationStrategy
-from network_node.src.network_node import NetworkNode  # noqa: E402
-from network_node.src.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface  # noqa: E402
+from network_manager.network_node.propagation_strategy.propagation_strategy import PropagationStrategy
+from network_manager.network_node.network_node import NetworkNode  # noqa: E402
+from network_manager.network_node.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface  # noqa: E402
 
 
 """

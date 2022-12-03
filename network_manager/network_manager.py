@@ -1,7 +1,8 @@
 from random import choice
 
-from network_manager.src.network_connectivity_level import NetworkConnectivityLevel
-from network_node.src.network_node import NetworkNode
+from network_manager.network_connectivity_level import NetworkConnectivityLevel
+from network_manager.network_node.network_node import NetworkNode
+from network_manager.network_node.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface
 
 
 """
@@ -14,7 +15,7 @@ Also provides protection against orphaned nodes.
 """
 
 
-class NetworkManager(object):
+class NetworkManager(NetworkNodeIdleListenerInterface):
     def __init__(self, network_connectivity_level: NetworkConnectivityLevel):
         """
         __init__
@@ -25,6 +26,8 @@ class NetworkManager(object):
 
         @return [NetworkManager] The newly created NetworkManager
         """
+        NetworkNodeIdleListenerInterface.__init__(self)
+        
         self.network_connectivity_level = network_connectivity_level
 
         self.central_network_node = None

@@ -1,7 +1,7 @@
 import unittest
 
-from network_node.src.network_node import NetworkNode
-from network_node.src.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface
+from network_manager.network_node.network_node import NetworkNode
+from network_manager.network_node.network_node_idle_listener_interface import NetworkNodeIdleListenerInterface
 
 """
 NetworkNodeTestClass

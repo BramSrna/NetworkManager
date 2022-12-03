@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from network_node.src.message_wrapper.message_wrapper import MessageWrapper
+from network_manager.network_node.message_wrapper.message_wrapper import MessageWrapper
 
 """
 MessageChannel

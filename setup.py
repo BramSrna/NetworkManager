@@ -19,19 +19,11 @@ setup(name='NetworkManager',
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License"
       ],
-      install_requires=['numpy', 'requests', 'pillow', 'networkx'],
-      python_requires='>=3.8',
+      install_requires=['logging'],
+      python_requires='>=3.10',
       extras_require={
-        'gpu': ["pyopencl", "six"],
-        'llvm': ["llvmlite"],
         'testing': [
             "pytest",
-            "torch~=1.11.0",
-            "tqdm",
-            "protobuf~=3.19.0",
-            "onnx",
-            "onnx2torch",
-            "mypy",
         ],
       },
       include_package_data=True)
