@@ -1,3 +1,0 @@
-# Abstraction Layers
-## Introduction
-In a swarm, it is possible to define various levels of abstraction in the form of what constitutes an execution unit. For example, one bot could be an execution unit, several bots working together could be an execution unit; or if the swarm is working together, the swarm could be considered one execution unit. The abstraction layers formed would vary depending on a variety of factors including the task being executed by the swarm and the bots in the swarm. To facilitate manual abstraction layer definition, the swarm shall accept definitions laid out in a task's execution contract. The swarm will then set itself up to match the abstraction layers before executing the remainder of the contract. 
