@@ -1,3 +1,6 @@
+# Important Note
+Development for this has been moved to https://github.com/BramSrna/Swarm
+
 # NetworkManager
 This module provides an extensible utility for deploying and controlling a network of nodes. Nodes can be added to a network connected in several different ways. Messages can then be sent between nodes or propagated to the entire network.
 
